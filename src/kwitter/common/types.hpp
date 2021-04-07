@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <array>
 #include <string>
 #include <unordered_map>
 #include <cpr/cpr.h>
@@ -183,180 +184,178 @@ bool is_valid() {
 };
 
 struct Auth {
-std::string access_token;
-std::string token_type;
-std::string scope;
-std::string created_at;
+std::string api_key;
+std::string api_key_secret;
+std::string token;
 
 bool is_valid() {
   return (
-    !access_token.empty() &&
-    !token_type.empty()   &&
-    !scope.empty()        &&
-    !created_at.empty()
+    !api_key.empty() &&
+    !api_key_secret.empty()   &&
+    !token.empty()
   );
 }
 };
 
-struct Application {
-std::string name;
-std::string url;
-
-friend std::ostream &operator<<(std::ostream& o, const Application& a) {
-  o << "Name: " << a.name << "\n" << "URL: " << a.url << std::endl;
-
-  return o;
-}
+struct Withheld {
+bool copyright;
+std::vector<std::string> country_codes;
 };
 
-struct MetaDetails {
-uint32_t    width;
-uint32_t    height;
-std::string size;
-float       aspect;
-};
-struct MediaMetadata {
-MetaDetails original;
-MetaDetails small;
+struct Coordinates {
+using Geocoordinate = std::array<float, 2>;
+static const uint8_t LATITUDE_INDEX{0};
+static const uint8_t LONGITUDE_INDEX{0};
+std::string type;
+Geocoordinate coordinate;
+std::string place_id;
 };
 
-struct Tag {
-std::string name;
-std::string url;
-
-friend std::ostream &operator<<(std::ostream& o, const Tag& t) {
-  o << "Name: " << t.name << "\n" << "URL: " << t.url << std::endl;
-
-  return o;
-}
-};
-
-struct Card {};
-struct Poll {};
-struct Media {
+struct RefTweet {
 std::string id;
 std::string type;
-std::string url;
-std::string preview_url;
-std::string remote_url;
-std::string preview_remote_url;
-std::string text_url;
-MediaMetadata meta;
-std::string description;
-std::string blurhash;
-
-bool has_media() { return !id.empty(); }
-
-friend std::ostream &operator<<(std::ostream& o, const Media& m) {
-o << "ID: " << m.id << "\nURL: " << m.url << "\n(TODO: Complete media ostream)" << std::endl;
-return o;
-}
 };
 
+struct Media{};
+
+struct NonPublicMetrics {
+uint32_t impression_count;
+uint32_t url_link_clicks;
+uint32_t user_profile_clicks;
+};
+
+struct OrganicMetrics {
+uint32_t impression_count;
+uint32_t like_count;
+uint32_t reply_count;
+uint32_t retweet_count;
+uint32_t url_link_clicks;
+uint32_t user_profile_clicks;
+};
+
+struct PromotedMetrics {
+uint32_t    impression_count;
+uint32_t    like_count;
+uint32_t    reply_count;
+uint32_t    retweet_count;
+uint32_t    url_link_clicks;
+uint32_t    user_profile_clicks;
+};
+
+struct PublicMetrics {
+uint32_t retweet_count;
+uint32_t reply_count;
+uint32_t like_count;
+uint32_t quote_count;
+};
+
+struct Attachment{};
+struct ContextAnnotation{};
+struct Entity{};
+// "context_annotations": [
+//       {
+//            "domain": {
+//                "id": "45",
+//                "name": "Brand Vertical",
+//                "description": "Top level entities that describe a Brands industry"
+//            }
+//        },
+//        {
+//            "domain": {
+//                "id": "46",
+//                "name": "Brand Category",
+//                "description": "Categories within Brand Verticals that narrow down the scope of Brands"
+//            },
+//            "entity": {
+//                "id": "781974596752842752",
+//                "name": "Services"
+//            }
+//        },
+//        {
+//            "domain": {
+//                "id": "47",
+//                "name": "Brand",
+//                "description": "Brands and Companies"
+//            },
+//            "entity": {
+//                "id": "10045225402",
+//                "name": "Twitter"
+//            }
+//        }
+//    ]
+
+
 struct Tweet : public PostDataInterface {
-Tweet()
-: sensitive(false) {}
+using Attachments = std::vector<Attachment>;
+Tweet() {}
+std::string	id;
+std::string text;
 
-Tweet(std::string text)
-: sensitive(false), content(text) {}
+Attachments attachments;
 
-static Tweet create_instance_with_message(
-  Tweet             status,
-  const std::string& message,
-  const std::string& replying_to_id) {
+// "attachments": {
+//     "poll_ids": [
+//         "1199786642468413448"
+//     ]
+// }
 
-  status.content        = message;
-  status.replying_to_id = replying_to_id;
-  return status;
-}
+// "attachments": {
+//     "media_keys": [
+//         "3_1136048009270239232"
+//     ]
+// }
 
-uint64_t                 id;
-std::string              created_at;
-std::string              replying_to_id;
-std::string              replying_to_account;
-bool                     sensitive;
-std::string              spoiler;
-std::string              visibility;
-std::string              language;
-std::string              uri;
-std::string              url;
-uint32_t                 replies;
-uint32_t                 reblogs;
-uint32_t                 favourites;
-std::string              content;
-Account                  reblog;
-Application              application;
-Account                  account;
-std::vector<Media>       media;
-std::vector<Mention>     mentions;
-std::vector<Tag>         tags;
-std::vector<std::string> emojis;
-Card                     card;
-Poll                     poll;
+std::string author_id;
+// std::vector<ContextAnnotation> context_annotations;
+std::string conversation_id;
+std::string created_at;
+std::vector<Entity> entities;
+Coordinates geo;
+std::string in_reply_to_user_id;
+std::string lang;
+NonPublicMetrics non_public_metrics;
+OrganicMetrics organic_metrics;
+bool possiby_sensitive;
+PromotedMetrics promoted_metrics;
+PublicMetrics public_metrics;
+std::vector<RefTweet> referenced_tweets;
+std::string reply_settings;
+std::string source;
+Withheld withheld;
+
 
 friend std::ostream &operator<<(std::ostream& o, const Tweet& s) {
-  o << "ID:"           << std::to_string(s.id) << "\n" <<
-       "Created:"      << s.created_at << "\n" <<
-       "To ID:"        << s.replying_to_id << "\n" <<
-       "To acc:"       << s.replying_to_account << "\n" <<
-       "Sensitive:"    << s.sensitive << "\n" <<
-       "Spoiler:"      << s.spoiler << "\n" <<
-       "Visibility:"   << s.visibility << "\n" <<
-       "Language:"     << s.language << "\n" <<
-       "URI:"          << s.uri << "\n" <<
-       "URL:"          << s.url << "\n" <<
-       "Replies:"      << s.replies << "\n" <<
-       "Reblogs:"      << s.reblogs << "\n" <<
-       "Favourites:"   << s.favourites << "\n" <<
-       "Content:"      << s.content << "\n" <<
-       "Reblog:"       << s.reblog << "\n" <<
-       "APPLICATION\n" << s.application << "\n" <<
-       "ACCOUNT\n"     << s.account << "\n";
-
-       o << "MEDIA\n";
-       for (const auto& media : s.media)
-        o << media << std::endl;
-      o << "MENTIONS\n";
-       for (const auto& mention : s.mentions)
-        o << mention << std::endl;
-      o << "TAGS\n";
-       for (const auto& tag : s.tags)
-        o << tag << std::endl;
-      o << "EMOJIS\n";
-       for (const auto& emoji : s.emojis)
-        o << emoji << std::endl;
-
-      o << "Card:" << "TODO" << "\n" <<
-           "Poll:" << "TODO" << "\n";
   return o;
 }
 
 virtual std::string postdata() override {
-  std::string media_ids{};
-  std::string delim{""};
+  // std::string media_ids{};
+  // std::string delim{""};
 
-  for (const auto& media_item : media) {
-    media_ids += delim + media_item.id;
-    delim = ",";
-  }
+  // for (const auto& media_item : media) {
+  //   media_ids += delim + media_item.id;
+  //   delim = ",";
+  // }
 
-  if (!visibility.empty() && !visibility_is_valid(visibility))
-    throw std::invalid_argument{"This visibility is not recognized"};
+  // if (!visibility.empty() && !visibility_is_valid(visibility))
+  //   throw std::invalid_argument{"This visibility is not recognized"};
 
-  std::string RC{
-    "status="         + content   + "&" +
-    "media_ids[]="    + media_ids + "&" +
-    "spoiler_text="   + spoiler   + "&" +
-    "in_reply_to_id=" + replying_to_id + "&" +
-    "visibility="     + visibility + "&" +
-    "sensitive="      + std::to_string(sensitive)
-  };
+  // std::string RC{
+  //   "status="         + content   + "&" +
+  //   "media_ids[]="    + media_ids + "&" +
+  //   "spoiler_text="   + spoiler   + "&" +
+  //   "in_reply_to_id=" + replying_to_id + "&" +
+  //   "visibility="     + visibility + "&" +
+  //   "sensitive="      + std::to_string(sensitive)
+  // };
 
-  return RC;
+  // return RC;
+
+  return "";
 }
 
 bool is_valid() const {
-  return (!content.empty());
+  return (!text.empty());
 }
 
 virtual ~Tweet() override {}
@@ -370,9 +369,6 @@ std::vector<Account> accounts;
 
 friend std::ostream &operator<<(std::ostream& o, const Conversation& c) {
   o << "ConversationID: " << c.id << std::endl;
-
-  if (!c.tweet.content.empty())
-    o << c.tweet;
 
   return o;
 }

@@ -70,16 +70,9 @@ static std::vector<std::string> const ChunkMessage(const std::string& message) {
  * @param username
  */
 Client::Client(const std::string& username)
-: m_authenticator(Authenticator{username}) {
-  if (!m_authenticator.HasValidToken()) {
-    m_authenticator.FetchToken();
-  }
+: m_authenticator(Authenticator{username})
+{}
 
-  if (!m_authenticator.HasValidToken())
-    throw std::invalid_argument{"Client was unable to authenticate."};
-
-  m_authenticator.VerifyToken();
-}
 
 bool Client::HasAuth() {
   return m_authenticator.IsAuthenticated();
@@ -95,10 +88,10 @@ Tweet Client::FetchTweet(uint64_t id) {
   using json = nlohmann::json;
   using namespace constants;
 
-  const std::string STATUSES_URL = m_authenticator.GetBaseURL() + PATH.at(TWEETS_INDEX) + "/" + std::to_string(id);
+  const std::string TWEETS_URL = BASE_URL + PATH.at(TWEETS_INDEX) + "/" + std::to_string(id);
 
   cpr::Response r = cpr::Get(
-    cpr::Url{STATUSES_URL}
+    cpr::Url{TWEETS_URL}
   );
 
   if (r.status_code >= 400) {
@@ -122,18 +115,18 @@ Tweet Client::FetchTweet(uint64_t id) {
  * @return std::vector<Tweet>
  */
 std::vector<Tweet> Client::FetchUserTweets(UserID id) {
-  using json = nlohmann::json;
-  using namespace constants;
-  // api/v1/accounts/:id/tweets
-  const std::string URL = m_authenticator.GetBaseURL() + PATH.at(ACCOUNTS_INDEX) + '/' + id + "/tweets";
+  // using json = nlohmann::json;
+  // using namespace constants;
+  // // api/v1/accounts/:id/tweets
+  // const std::string URL = m_authenticator.GetBaseURL() + PATH.at(ACCOUNTS_INDEX) + '/' + id + "/tweets";
 
-  cpr::Response r = cpr::Get(
-    cpr::Url{URL}
-  );
+  // cpr::Response r = cpr::Get(
+  //   cpr::Url{URL}
+  // );
 
-  if (!r.text.empty()) {
-    return JSONToTweets(json::parse(r.text, nullptr, constants::JSON_PARSE_NO_THROW));
-  }
+  // if (!r.text.empty()) {
+  //   return JSONToTweets(json::parse(r.text, nullptr, constants::JSON_PARSE_NO_THROW));
+  // }
 
   return std::vector<Tweet>{};
 }
@@ -145,19 +138,21 @@ std::vector<Tweet> Client::FetchUserTweets(UserID id) {
  * @returns [out] {std::vector<Tweet>}
  */
 std::vector<Tweet> Client::FetchChildTweets(TweetID id) {
-  using json = nlohmann::json;
-  using namespace constants;
+  // using json = nlohmann::json;
+  // using namespace constants;
 
-  const std::string URL = STATUS_CONTEXT_URL(m_authenticator.GetBaseURL(), id); // api/v1/accounts/:id/tweets
+  // const std::string URL = STATUS_CONTEXT_URL(m_authenticator.GetBaseURL(), id); // api/v1/accounts/:id/tweets
 
-  RequestResponse response{cpr::Get(
-    cpr::Url{URL}
-  )};
+  // RequestResponse response{cpr::Get(
+  //   cpr::Url{URL}
+  // )};
 
-  if (response.error)
-    throw request_error{response.GetError()};
+  // if (response.error)
+  //   throw request_error{response.GetError()};
 
-  return JSONContextToTweets(response.json());
+  // return JSONContextToTweets(response.json());
+
+  return std::vector<Tweet>{};
 }
 
 /**
@@ -169,20 +164,20 @@ std::vector<Tweet> Client::FetchChildTweets(TweetID id) {
 Media Client::PostMedia(File file) {
   using namespace constants;
 
-  const std::string URL{m_authenticator.GetBaseURL() + PATH.at(MEDIA_INDEX)};
+  // const std::string URL{m_authenticator.GetBaseURL() + PATH.at(MEDIA_INDEX)};
 
-  cpr::Response r = cpr::Post(
-    cpr::Url{URL},
-    cpr::Header{
-      {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
-    },
-    file.multiformdata(),
-    cpr::VerifySsl{m_authenticator.verify_ssl()}
-  );
+  // cpr::Response r = cpr::Post(
+  //   cpr::Url{URL},
+  //   cpr::Header{
+  //     {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+  //   },
+  //   file.multiformdata(),
+  //   cpr::VerifySsl{m_authenticator.verify_ssl()}
+  // );
 
-  if (r.status_code < 400) {
-    return ParseMediaFromJSON(json::parse(r.text, nullptr, constants::JSON_PARSE_NO_THROW));
-  }
+  // if (r.status_code < 400) {
+  //   return ParseMediaFromJSON(json::parse(r.text, nullptr, constants::JSON_PARSE_NO_THROW));
+  // }
 
   return Media{};
 }
@@ -199,34 +194,34 @@ bool Client::PostTweet(Tweet tweet) {
   using json = nlohmann::json;
   using namespace constants;
 
-  const std::string              URL = m_authenticator.GetBaseURL() + PATH.at(TWEETS_INDEX);
-  const std::vector<std::string> messages = ChunkMessage(tweet.content);
-  std::string                    reply_to_id = tweet.replying_to_id;
+  // const std::string              URL = m_authenticator.GetBaseURL() + PATH.at(TWEETS_INDEX);
+  // const std::vector<std::string> messages = ChunkMessage(tweet.text);
+  // std::string                    reply_to_id = tweet.replying_to_id;
 
-  for (const auto& message : messages) {
-    Tweet outgoing_status = Tweet::create_instance_with_message(tweet, message, reply_to_id);
+  // for (const auto& message : messages) {
+  //   Tweet outgoing_status = Tweet::create_instance_with_message(tweet, message, reply_to_id);
 
-    RequestResponse response{cpr::Post(
-      cpr::Url{URL},
-      cpr::Header{
-        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
-      },
-      cpr::Body{outgoing_status.postdata()},
-      cpr::VerifySsl{m_authenticator.verify_ssl()}
-    )};
+  //   RequestResponse response{cpr::Post(
+  //     cpr::Url{URL},
+  //     cpr::Header{
+  //       {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+  //     },
+  //     cpr::Body{outgoing_status.postdata()},
+  //     cpr::VerifySsl{m_authenticator.verify_ssl()}
+  //   )};
 
-    if (response.error)
-      throw request_error(response.GetError());
+  //   if (response.error)
+  //     throw request_error(response.GetError());
 
-    Tweet returned_status = JSONToTweet(response.json());
+  //   Tweet returned_status = JSONToTweet(response.json());
 
-    if (returned_status.content.empty())
-      return false;
+  //   if (returned_status.content.empty())
+  //     return false;
 
-    m_tweets.emplace_back(std::move(returned_status));
+  //   m_tweets.emplace_back(std::move(returned_status));
 
-    reply_to_id = std::to_string(returned_status.id);
-  }
+  //   reply_to_id = std::to_string(returned_status.id);
+  // }
 
   return true;
 }
@@ -240,14 +235,14 @@ bool Client::PostTweet(Tweet tweet) {
  * @return false
  */
 bool Client::PostTweet(Tweet tweet, std::vector<File> files) {
-  for (auto&& file : files) {
-    const bool download_file = (file.path.empty() && (!file.url.empty()));
-    file.path        = download_file ? FetchTemporaryFile(file.url, m_authenticator.verify_ssl()) :
-                                       file.path;
-    Media      media = PostMedia(file);
-    tweet.media.emplace_back(std::move(media));
-    if (download_file) EraseFile(file.path);
-  }
+  // for (auto&& file : files) {
+  //   const bool download_file = (file.path.empty() && (!file.url.empty()));
+  //   file.path        = download_file ? FetchTemporaryFile(file.url, m_authenticator.verify_ssl()) :
+  //                                      file.path;
+  //   Media      media = PostMedia(file);
+  //   tweet.media.emplace_back(std::move(media));
+  //   if (download_file) EraseFile(file.path);
+  // }
   return PostTweet(tweet);
 }
 
@@ -260,41 +255,15 @@ bool Client::PostTweet(Tweet tweet, std::vector<File> files) {
  * @return false
  */
 bool Client::PostTweet(Tweet tweet, std::vector<std::string> files) {
-  for (const auto& file : files) {
-    auto path = FetchTemporaryFile(file, m_authenticator.verify_ssl());
-      tweet.media.emplace_back(std::move(
-        PostMedia(path)
-      ));
-      EraseFile(path);
-  }
+  // for (const auto& file : files) {
+  //   auto path = FetchTemporaryFile(file, m_authenticator.verify_ssl());
+  //     tweet.media.emplace_back(std::move(
+  //       PostMedia(path)
+  //     ));
+  //     EraseFile(path);
+  // }
   return PostTweet(tweet);
 }
-
-/**
- * @brief
- *
- * @return std::vector<Conversation>
- */
-std::vector<Conversation> Client::FetchConversations() {
-  using namespace constants;
-
-  const std::string CONVERSATION_URL = m_authenticator.GetBaseURL() + PATH.at(CONVERSATION_INDEX);
-
-  RequestResponse response{cpr::Get(
-    cpr::Url{CONVERSATION_URL},
-    cpr::Header{
-      {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
-    },
-    cpr::VerifySsl{m_authenticator.verify_ssl()}
-  )};
-
-  if (response.error)
-    throw request_error{response.GetError()};
-
-
-  return JSONToConversation(response.json());
-}
-
 /**
  * @brief
  *
@@ -315,9 +284,7 @@ std::string Client::GetUsername() {
 
 bool Client::SetUser(const std::string& username)
 {
-  if (m_authenticator.SetUser(username))
-    return m_authenticator.VerifyToken();
-  return false;
+  return m_authenticator.SetUser(username);
 }
 
 bool Client::HasPostedTweets() const

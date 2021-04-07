@@ -79,10 +79,9 @@ inline bool ValidateAuthJSON(nlohmann::json json_file) {
 
 inline std::string AuthToJSON(Auth auth) {
   nlohmann::json auth_json{};
-  auth_json["access_token"] = auth.access_token;
-  auth_json["token_type"]   = auth.token_type;
-  auth_json["scope"]        = auth.scope;
-  auth_json["created_at"]   = auth.created_at;
+  auth_json["apiKey"] = auth.api_key;
+  auth_json["apiKeySecret"]   = auth.api_key_secret;
+  auth_json["bearer"]        = auth.token;
 
   return auth_json.dump();
 }
@@ -94,10 +93,9 @@ inline Auth ParseAuthFromJSON(nlohmann::json json_file) {
   Auth auth{};
 
   if (ValidateAuthJSON(json_file)) {
-    auth.access_token =  GetJSONStringValue(json_file, "access_token");
-    auth.token_type   =  GetJSONStringValue(json_file, "token_type");
-    auth.scope        =  GetJSONStringValue(json_file, "scope");
-    auth.created_at   =  std::to_string(GetJSONValue<uint32_t>(json_file, "created_at"));
+    auth.api_key =  GetJSONStringValue(json_file, "apiKey");
+    auth.api_key_secret   =  GetJSONStringValue(json_file, "apiKeySecret");
+    auth.token        =  GetJSONStringValue(json_file, "bearer");
   }
 
   return auth;
@@ -135,10 +133,6 @@ Authenticator(std::string username = "")
     m_verify_ssl = (verify_ssl == "true");
   }
 
-  auto base_url = config.GetString(constants::kwitter_SECTION, constants::BASE_URL_KEY, "");
-  m_base_url = (base_url.empty()) ?
-    constants::BASE_URL : base_url;
-
   auto creds_path    = config.GetString(constants::kwitter_SECTION, constants::CREDS_PATH_KEY, "");
   if (!creds_path.empty())
     m_credentials_json = LoadJSONFile(creds_path);
@@ -157,93 +151,6 @@ Authenticator(std::string username = "")
     throw std::invalid_argument{"Error setting user tokens"};
 }
 
-/**
- * FetchToken
- *
- * @returns [out] {bool}
- */
-bool FetchToken() {
-  using namespace constants;
-  using json = nlohmann::json;
-
-  const std::string AUTHORIZATION_CODE_GRANT_TYPE{"authorization_code"};
-  const std::string AUTH_URL = GetBaseURL() + PATH.at(TOKEN_INDEX);
-  std::string       response;
-  std::string       status;
-
-  if (m_credentials.is_valid()) {
-    cpr::Response r = cpr::Post(
-      cpr::Url{AUTH_URL},
-      cpr::Body{std::string{
-        "client_id=" + m_credentials.client_id +  "&" +
-        "client_secret=" + m_credentials.client_secret + "&" +
-        "redirect_uri=" + m_credentials.redirect_uri + "&" +
-        "grant_type=" + AUTHORIZATION_CODE_GRANT_TYPE + "&" +
-        "code=" + m_credentials.code + "&" +
-        "scope=" + m_credentials.scope
-      }},
-      cpr::VerifySsl{verify_ssl()}
-    );
-
-    response = r.text;
-    status   = std::string{"Status code: " + r.status_code};
-
-    if (!response.empty()) {
-      json auth_json = json::parse(response, nullptr, constants::JSON_PARSE_NO_THROW);
-      Auth auth      = ParseAuthFromJSON(auth_json);
-
-      if (auth.is_valid()) {
-        m_auth = auth;
-        m_authenticated = true;
-        m_token_json["users"][m_username] = auth_json;
-        SaveToFile(m_token_json.dump(), m_tokens_path);
-        return true;
-      } else {
-        log("Failed to parse token");
-      }
-    } else {
-      log("Token request failed");
-    }
-    log(std::string{
-      "Failed to fetch token.\n"
-      "Code: "     + status + "\n"
-      "Response: " + response
-    });
-  } else {
-    log("Credentials are invalid");
-  }
-
-  return false;
-}
-
-bool VerifyToken() {
-  using namespace constants;
-
-  m_authenticated = false;
-
-  const std::string URL = BASE_URL + PATH.at(TOKEN_VERIFY_INDEX);
-
-  if (m_auth.is_valid()) {
-    RequestResponse response{cpr::Get(
-      cpr::Url{URL},
-      cpr::Header{
-        {HEADER_NAMES.at(HEADER_AUTH_INDEX), GetBearerAuth()}
-      },
-      cpr::VerifySsl{verify_ssl()}
-    )};
-
-    if (response.error)
-      kwitter::log(response.GetError());
-    else
-    {
-      m_account = ParseAccountFromJSON(response.json());
-      m_authenticated = m_account.is_valid();
-    }
-  }
-
-  return m_authenticated;
-}
-
 
 bool IsAuthenticated() {
   return m_authenticated;
@@ -258,9 +165,9 @@ void ClearToken() {
 }
 
 std::string GetBearerAuth() {
-  if (m_auth.access_token.empty())
+  if (m_auth.token.empty())
     return "";
-  return std::string{"Bearer " + m_auth.access_token};
+  return std::string{"Bearer " + m_auth.token};
 }
 
 Credentials get_credentials() {
@@ -300,11 +207,6 @@ std::string GetUsername() {
   return m_username;
 }
 
-const std::string GetBaseURL() const
-{
-  return m_base_url;
-}
-
 bool verify_ssl() {
   return m_verify_ssl;
 }
@@ -321,7 +223,6 @@ json         m_token_json;
 json         m_credentials_json;
 std::string  m_tokens_path;
 bool         m_verify_ssl;
-std::string  m_base_url;
 
 };
 

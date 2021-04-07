@@ -69,11 +69,11 @@ bool ReplyToTweet(Tweet tweet, std::string message = "", bool remove_id = true)
   Tweet reply;
 
   reply = Tweet{};
-  reply.content = message;
+  // reply.content = message;
 
-  reply.replying_to_id = std::to_string(tweet.id);
-  reply.content        = MakeMention(tweet) + reply.content;
-  reply.visibility     = tweet.visibility;
+  // reply.replying_to_id = std::to_string(tweet.id);
+  // reply.content        = MakeMention(tweet) + reply.content;
+  // reply.visibility     = tweet.visibility;
 
   return m_client.PostTweet(reply);
 }
