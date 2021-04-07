@@ -1,0 +1,122 @@
+config("kjson") {
+  include_dirs = [
+    "//third_party/kjson",
+    "//third_party/json/include",
+  ]
+}
+
+config("html") {
+  include_dirs = [
+    "//third_party/HtmlBuilder/include"
+  ]
+}
+
+config("knlp") {
+  include_dirs = [
+    "//third_party/knlp/src/nlp"
+  ]
+}
+
+source_set("knlp_sources") {
+  sources = [
+    "//third_party/knlp/src/nlp/nlp.cpp"
+  ]
+}
+
+config("inih") {
+  include_dirs = [
+    "//third_party/inih/cpp"
+  ]
+}
+
+source_set("ini_reader") {
+  sources = [
+    "//third_party/inih/ini.c",
+    "//third_party/inih/cpp/INIReader.cpp"
+  ]
+}
+
+config("cpr_library") {
+  include_dirs = ["//third_party/cpr/include"]
+  lib_dirs = [ "//third_party/cpr/build/lib" ]
+  libs = [
+    "//third_party/cpr/build/lib/libcpr.so",
+  ]
+  visibility = [ ":cpr_lib" ]
+}
+
+group("cpr_lib") {
+  public_configs = [":cpr_library"]
+}
+
+source_set("kwitter_sources") {
+
+  deps = [
+    ":ini_reader",
+    ":knlp_sources"
+  ]
+
+  public_deps = [
+    ":cpr_lib",
+  ]
+
+  public_configs = [
+    ":inih",
+    ":kjson",
+    ":html",
+    ":knlp"
+  ]
+
+  include_dirs = [
+    "//src",
+  ]
+
+  libs = [
+    "crypto",
+    "curl",
+  ]
+
+  sources = [
+    "//src/kwitter/client/client.cpp"
+  ]
+}
+
+executable("kwitter") {
+  deps = [
+    ":kwitter_sources"
+  ]
+
+  include_dirs = [
+    "//src",
+  ]
+
+  libs = [
+    "pthread",
+    "crypto",
+    "curl"
+  ]
+
+  sources = [
+    "//src/kwitter/main.cpp"
+  ]
+}
+
+shared_library("kwitter_lib") {
+  deps = [
+    ":kwitter_sources"
+  ]
+
+  include_dirs = [
+    "//src",
+  ]
+
+  libs = [
+    "pthread",
+    "crypto",
+    "curl"
+  ]
+
+  sources = [
+    "//src/kwitter/main.cpp"
+  ]
+}
