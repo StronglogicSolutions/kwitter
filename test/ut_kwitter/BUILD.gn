@@ -1,0 +1,27 @@
+executable("ut_kwitter") {
+
+  public_deps = [
+    "//src/kwitter:kwitter_sources"
+  ]
+
+  testonly = true
+
+  libs = [
+    "cpr"
+  ]
+
+
+  deps = [
+    "//test:gtest_main",
+    "//test:gtest_and_gmock"
+  ]
+
+  include_dirs = [
+    "//src",
+    "//third_party/json/include",
+  ]
+
+  sources = [
+    "kwitter.test.cpp",
+  ]
+}
