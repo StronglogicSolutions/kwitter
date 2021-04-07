@@ -1,6 +1,12 @@
 #include "kwitter.test.hpp"
 
 
-TEST(kwitterTests, DISABLED_Instantiate) {
+TEST(KWitterTests, DISABLED_Instantiate)
+{
   ASSERT_NO_THROW(kwitter::Client{});
+}
+
+TEST(KWitterTests, FetchTweet)
+{
+  kwitter::Bot bot{};
 }
