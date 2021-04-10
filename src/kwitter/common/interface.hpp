@@ -18,8 +18,8 @@ virtual Account GetAccount() = 0;
 
 class TwitterStatusClient {
 public:
-using UserID   = std::string;
-using TweetID = uint64_t;
+using UserID  = std::string;
+using TweetID = std::string;
 
 virtual ~TwitterStatusClient() {}
 virtual Tweet              FetchTweet(TweetID id) = 0;

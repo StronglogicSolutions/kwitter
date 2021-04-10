@@ -37,6 +37,23 @@ inline std::vector<Media> ParseMediaFromJSONArr(nlohmann::json data) {
   return media_v;
 }
 
+inline Tweet ParseTweetFromJSON(nlohmann::json data)
+{
+  Tweet       tweet{};
+  std::string s = data.dump();
+
+  if (!data.is_null() && data.is_object() && data.contains("data"))
+  {
+    const nlohmann::json payload = data["data"];
+    tweet.id              = kjson::GetJSONStringValue(payload, "id");
+    tweet.text            = kjson::GetJSONStringValue(payload, "text");
+    tweet.author_id       = kjson::GetJSONStringValue(payload, "author_id");
+    tweet.conversation_id = kjson::GetJSONStringValue(payload, "conversation_id");
+    tweet.created_at      = kjson::GetJSONStringValue(payload, "created_at");
+  }
+
+  return tweet;
+}
 
 /**
  * @brief

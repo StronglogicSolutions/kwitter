@@ -78,6 +78,11 @@ bool ReplyToTweet(Tweet tweet, std::string message = "", bool remove_id = true)
   return m_client.PostTweet(reply);
 }
 
+Tweet FetchTweet(TwitterStatusClient::TweetID id)
+{
+  return m_client.FetchTweet(id);
+}
+
 const bool SetUser(const std::string& username)
 {
   return m_client.SetUser(username);
