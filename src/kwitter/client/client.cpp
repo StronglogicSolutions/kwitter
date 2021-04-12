@@ -8,6 +8,25 @@ namespace kwitter {
   └───────────────────────────────────────────────────────────┘
 */
 
+const std::string GetDefaultFields()
+{
+  using namespace constants;
+  return
+  PARAM_VALUES.at(PARAM_VALUE_ATTACHMENTS_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_AUTHOR_ID_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_CREATED_AT_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_ENTITIES_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_GEO_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_ID_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_IN_REPLY_TO_USER_ID_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_LANG_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_POSSIBLY_SENSITIVE_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_REFERENCED_TWEETS_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_SOURCE_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_TEXT_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_WITHHELD_INDEX);
+}
+
 /**
  * @brief Chunk Message
  *
@@ -84,29 +103,29 @@ bool Client::HasAuth() {
  * @param id
  * @return Tweet
  */
-Tweet Client::FetchTweet(uint64_t id) {
-  using json = nlohmann::json;
-  using namespace constants;
+// Tweet Client::FetchTweet(TweetID id) {
+//   using json = nlohmann::json;
+//   using namespace constants;
 
-  const std::string TWEETS_URL = BASE_URL + PATH.at(TWEETS_INDEX) + "/" + std::to_string(id);
+//   const std::string TWEETS_URL = BASE_URL + PATH.at(TWEETS_INDEX) + "/" + id;
 
-  cpr::Response r = cpr::Get(
-    cpr::Url{TWEETS_URL}
-  );
+//   cpr::Response r = cpr::Get(
+//     cpr::Url{TWEETS_URL}
+//   );
 
-  if (r.status_code >= 400) {
-    // Error handling
-    std::string error_message{
-      "Request failed with message: " + r.error.message
-    };
-  }
+//   if (r.status_code >= 400) {
+//     // Error handling
+//     std::string error_message{
+//       "Request failed with message: " + r.error.message
+//     };
+//   }
 
-  if (!r.text.empty()) {
-    return JSONToTweet(json::parse(r.text, nullptr, constants::JSON_PARSE_NO_THROW));
-  }
+//   if (!r.text.empty()) {
+//     return JSONToTweet(json::parse(r.text, nullptr, constants::JSON_PARSE_NO_THROW));
+//   }
 
-  return Tweet{};
-}
+//   return Tweet{};
+// }
 
 /**
  * @brief
@@ -194,7 +213,7 @@ bool Client::PostTweet(Tweet tweet) {
   using json = nlohmann::json;
   using namespace constants;
 
-  // const std::string              URL = m_authenticator.GetBaseURL() + PATH.at(TWEETS_INDEX);
+  const std::string URL = BASE_URL + PATH.at(TWEETS_INDEX);
   // const std::vector<std::string> messages = ChunkMessage(tweet.text);
   // std::string                    reply_to_id = tweet.replying_to_id;
 
@@ -263,6 +282,33 @@ bool Client::PostTweet(Tweet tweet, std::vector<std::string> files) {
   //     EraseFile(path);
   // }
   return PostTweet(tweet);
+}
+
+
+Tweet Client::FetchTweet(TweetID id)
+{
+  using namespace constants;
+
+  const std::string URL = BASE_URL + PATH.at(TWEETS_INDEX) + '/' + id;
+
+  RequestResponse response{
+    cpr::Get(
+      cpr::Url{URL},
+      cpr::Header{
+        {HEADER_NAMES.at(HEADER_ACCEPT_INDEX), HEADER_VALUES.at(ACCEPT_JSON_INDEX)},
+        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+      },
+      cpr::Parameters{
+        {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()}
+      }
+    )
+  };
+
+  if (response.error)
+    log(response.GetError());
+  else
+    return ParseTweetFromJSON(response.json());
+  return Tweet{};
 }
 /**
  * @brief

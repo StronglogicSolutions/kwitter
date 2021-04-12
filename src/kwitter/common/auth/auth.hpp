@@ -70,10 +70,9 @@ inline bool ValidateAuthJSON(nlohmann::json json_file) {
   return(
     !json_file.is_null()               &&
     json_file.is_object()              &&
-    json_file.contains("access_token") &&
-    json_file.contains("token_type")   &&
-    json_file.contains("scope")        &&
-    json_file.contains("created_at")
+    json_file.contains("apiKey") &&
+    json_file.contains("apiKeySecret")   &&
+    json_file.contains("bearer")
   );
 }
 
@@ -93,9 +92,9 @@ inline Auth ParseAuthFromJSON(nlohmann::json json_file) {
   Auth auth{};
 
   if (ValidateAuthJSON(json_file)) {
-    auth.api_key =  GetJSONStringValue(json_file, "apiKey");
-    auth.api_key_secret   =  GetJSONStringValue(json_file, "apiKeySecret");
-    auth.token        =  GetJSONStringValue(json_file, "bearer");
+    auth.api_key        = GetJSONStringValue(json_file, "apiKey");
+    auth.api_key_secret = GetJSONStringValue(json_file, "apiKeySecret");
+    auth.token          = GetJSONStringValue(json_file, "bearer");
   }
 
   return auth;
@@ -115,14 +114,12 @@ Authenticator(std::string username = "")
   auto config = GetConfigReader();
 
   if (username.empty()) {
-
     if (config.ParseError() < 0) {
       log("Error loading config");
       throw std::invalid_argument{"No configuration path"};
     }
 
     username = config.GetString(constants::kwitter_SECTION, constants::USER_CONFIG_KEY, "");
-
     if (username.empty()) {
       throw std::invalid_argument{"No username in config. Please provide a username"};
     }
@@ -132,10 +129,6 @@ Authenticator(std::string username = "")
   if (!verify_ssl.empty()) {
     m_verify_ssl = (verify_ssl == "true");
   }
-
-  auto creds_path    = config.GetString(constants::kwitter_SECTION, constants::CREDS_PATH_KEY, "");
-  if (!creds_path.empty())
-    m_credentials_json = LoadJSONFile(creds_path);
 
   auto tokens_path = config.GetString(constants::kwitter_SECTION, constants::TOKENS_PATH_KEY, "");
   if (!tokens_path.empty())
@@ -180,23 +173,18 @@ Account GetAccount() {
 
 bool SetUser(const std::string& username)
 {
-  Credentials credentials = ParseCredentialsFromJSON(m_credentials_json, username);
-  if (credentials.is_valid())
+  if (m_token_json.contains("users")           &&
+      !m_token_json["users"].is_null()         &&
+      m_token_json["users"].contains(username) &&
+      !m_token_json["users"][username].is_null())
   {
-    m_credentials = credentials;
+    auto auth = ParseAuthFromJSON(m_token_json["users"][username]);
 
-    if (m_token_json.contains("users")    &&
-        !m_token_json["users"].is_null()  &&
-        m_token_json["users"].contains(username) &&
-        !m_token_json["users"][username].is_null())
-    {
-      auto auth = ParseAuthFromJSON(m_token_json["users"][username]);
-
-      if (auth.is_valid()) {
-        m_auth = auth;
-        m_username = username;
-        return true;
-      }
+    if (auth.is_valid()) {
+      m_auth          = auth;
+      m_username      = username;
+      m_authenticated = true;
+      return true;
     }
   }
 
@@ -220,10 +208,8 @@ Account      m_account;
 std::string  m_username;
 bool         m_authenticated;
 json         m_token_json;
-json         m_credentials_json;
 std::string  m_tokens_path;
 bool         m_verify_ssl;
-
 };
 
 } // namespace kwitter
