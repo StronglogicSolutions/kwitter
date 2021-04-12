@@ -40,7 +40,6 @@ inline std::vector<Media> ParseMediaFromJSONArr(nlohmann::json data) {
 inline Tweet ParseTweetFromJSON(nlohmann::json data)
 {
   Tweet       tweet{};
-  std::string s = data.dump();
 
   if (!data.is_null() && data.is_object() && data.contains("data"))
   {
@@ -53,6 +52,25 @@ inline Tweet ParseTweetFromJSON(nlohmann::json data)
   }
 
   return tweet;
+}
+
+static std::vector<Tweet> ParseTweetsFromJSON(const nlohmann::json& data)
+{
+  std::vector<Tweet> tweets{};
+
+  if (!data.is_null() && data.contains("data"))
+  for (const auto& item : data["data"])
+  {
+    Tweet tweet{};
+    tweet.id              = kjson::GetJSONStringValue(item, "id");
+    tweet.text            = kjson::GetJSONStringValue(item, "text");
+    tweet.author_id       = kjson::GetJSONStringValue(item, "author_id");
+    tweet.conversation_id = kjson::GetJSONStringValue(item, "conversation_id");
+    tweet.created_at      = kjson::GetJSONStringValue(item, "created_at");
+    tweets.emplace_back(tweet);
+  }
+
+  return tweets;
 }
 
 /**

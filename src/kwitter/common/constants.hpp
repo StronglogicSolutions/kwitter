@@ -30,23 +30,34 @@ const std::vector<std::string> HEADER_VALUES{
 };
 
 const uint8_t PARAM_NAME_TWEET_FIELDS_INDEX = 0x00;
+const uint8_t PARAM_NAME_USER_FIELDS_INDEX  = 0x01;
+const uint8_t PARAM_NAME_MEDIA_FIELDS_INDEX = 0x02;
 const std::vector<std::string> PARAM_NAMES{
-  "tweet.fields"
+  "tweet.fields",
+  "user.fields",
+  "media.fields"
 };
 
-const uint8_t PARAM_VALUE_ATTACHMENTS_INDEX = 0x00;
-const uint8_t PARAM_VALUE_AUTHOR_ID_INDEX = 0x01;
-const uint8_t PARAM_VALUE_CREATED_AT_INDEX = 0x02;
-const uint8_t PARAM_VALUE_ENTITIES_INDEX = 0x03;
-const uint8_t PARAM_VALUE_GEO_INDEX = 0x04;
-const uint8_t PARAM_VALUE_ID_INDEX = 0x05;
+const uint8_t PARAM_VALUE_ATTACHMENTS_INDEX         = 0x00;
+const uint8_t PARAM_VALUE_AUTHOR_ID_INDEX           = 0x01;
+const uint8_t PARAM_VALUE_CREATED_AT_INDEX          = 0x02;
+const uint8_t PARAM_VALUE_ENTITIES_INDEX            = 0x03;
+const uint8_t PARAM_VALUE_GEO_INDEX                 = 0x04;
+const uint8_t PARAM_VALUE_ID_INDEX                  = 0x05;
 const uint8_t PARAM_VALUE_IN_REPLY_TO_USER_ID_INDEX = 0x06;
-const uint8_t PARAM_VALUE_LANG_INDEX = 0x07;
-const uint8_t PARAM_VALUE_POSSIBLY_SENSITIVE_INDEX = 0x08;
-const uint8_t PARAM_VALUE_REFERENCED_TWEETS_INDEX = 0x09;
-const uint8_t PARAM_VALUE_SOURCE_INDEX = 0x0A;
-const uint8_t PARAM_VALUE_TEXT_INDEX = 0x0B;
-const uint8_t PARAM_VALUE_WITHHELD_INDEX = 0x0C;
+const uint8_t PARAM_VALUE_LANG_INDEX                = 0x07;
+const uint8_t PARAM_VALUE_POSSIBLY_SENSITIVE_INDEX  = 0x08;
+const uint8_t PARAM_VALUE_REFERENCED_TWEETS_INDEX   = 0x09;
+const uint8_t PARAM_VALUE_SOURCE_INDEX              = 0x0A;
+const uint8_t PARAM_VALUE_TEXT_INDEX                = 0x0B;
+const uint8_t PARAM_VALUE_WITHHELD_INDEX            = 0x0C;
+const uint8_t PARAM_VALUE_PROFILEURL_INDEX          = 0x0D;
+const uint8_t PARAM_VALUE_NAME_INDEX                = 0x0E;
+const uint8_t PARAM_VALUE_USERNAME_INDEX            = 0x0F;
+const uint8_t PARAM_VALUE_PREVIMG_URL_INDEX         = 0x10;
+const uint8_t PARAM_VALUE_TYPE_INDEX                = 0x11;
+const uint8_t PARAM_VALUE_MEDIAKEY_INDEX            = 0x12;
+const uint8_t PARAM_VALUE_URL_INDEX                 = 0x13;
 
 const std::vector<std::string> PARAM_VALUES{
   "attachments",
@@ -61,13 +72,22 @@ const std::vector<std::string> PARAM_VALUES{
   "referenced_tweets",
   "source",
   "text",
-  "withheld"
+  "withheld",
+  "profile_image_url",
+  "name",
+  "username",
+  "preview_image_url",
+  "type",
+  "media_key",
+  "url"
 };
 // namespace  {
-const std::string BASE_URL{"https://api.twitter.com"};
-const uint8_t     TWEETS_INDEX = 0x00;
-const std::vector<std::string> PATH{
-  "/2/tweets"
+static const std::string BASE_URL{"https://api.twitter.com"};
+static const uint8_t     TWEETS_INDEX = 0x00;
+static const uint8_t     USER_INDEX   = 0x01;
+static const std::vector<std::string> PATH{
+  "/2/tweets",
+  "/2/users"
 };
 
 } // namespace constants
