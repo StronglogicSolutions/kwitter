@@ -174,6 +174,8 @@ std::vector<Tweet> Client::FetchUserTweets(UserID id) {
   if (response.error)
     log(response.GetError());
 
+  log(response.text());
+
   return ParseTweetsFromJSON(response.json());
 }
 

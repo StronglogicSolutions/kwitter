@@ -58,6 +58,7 @@ const uint8_t PARAM_VALUE_PREVIMG_URL_INDEX         = 0x10;
 const uint8_t PARAM_VALUE_TYPE_INDEX                = 0x11;
 const uint8_t PARAM_VALUE_MEDIAKEY_INDEX            = 0x12;
 const uint8_t PARAM_VALUE_URL_INDEX                 = 0x13;
+const uint8_t PARAM_VALUE_MEDIA_URL_INDEX           = 0x14;
 
 const std::vector<std::string> PARAM_VALUES{
   "attachments",
@@ -79,7 +80,8 @@ const std::vector<std::string> PARAM_VALUES{
   "preview_image_url",
   "type",
   "media_key",
-  "url"
+  "url",
+  "media_url"
 };
 // namespace  {
 static const std::string BASE_URL{"https://api.twitter.com"};

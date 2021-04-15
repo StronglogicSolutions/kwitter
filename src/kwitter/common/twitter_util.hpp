@@ -67,6 +67,23 @@ static std::vector<Tweet> ParseTweetsFromJSON(const nlohmann::json& data)
     tweet.author_id       = kjson::GetJSONStringValue(item, "author_id");
     tweet.conversation_id = kjson::GetJSONStringValue(item, "conversation_id");
     tweet.created_at      = kjson::GetJSONStringValue(item, "created_at");
+    if (item.contains("entities"))
+    {
+      for (const auto& entity : item["entities"].items())
+      {
+        if (entity.key() == "mentions")
+        {
+          for (const auto& mention : entity.value())
+            tweet.mentions.emplace_back(mention);
+        }
+        else
+        if (entity.key() == "urls")
+        {
+          for (const auto& url : entity.value())
+            tweet.urls.emplace_back(url);
+        }
+      }
+    }
     tweets.emplace_back(tweet);
   }
 
