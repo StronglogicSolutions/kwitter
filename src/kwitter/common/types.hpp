@@ -306,14 +306,16 @@ std::vector<std::string> urls;
 //         "3_1136048009270239232"
 //     ]
 // }
-
 std::string author_id;
+std::string username;
+std::string profile_img_url;
 // std::vector<ContextAnnotation> context_annotations;
 std::string conversation_id;
 std::string created_at;
 std::vector<Entity> entities;
 Coordinates geo;
 std::string in_reply_to_user_id;
+std::string in_reply_to_status_id;
 std::string lang;
 NonPublicMetrics non_public_metrics;
 OrganicMetrics organic_metrics;
@@ -323,10 +325,55 @@ PublicMetrics public_metrics;
 std::vector<RefTweet> referenced_tweets;
 std::string reply_settings;
 std::string source;
+int32_t followers_count;
+int32_t friends_count;
+int32_t favourite_count;
+int32_t retweet_count;
 Withheld withheld;
 
+const std::string likes () const
+{
+  return std::to_string(favourite_count);
+}
+
+const std::string retweets () const
+{
+  return std::to_string(retweet_count);
+}
+
+const std::string followers() const
+{
+  return std::to_string(followers_count);
+}
+
+const std::string friends() const
+{
+  return std::to_string(friends_count);
+}
+
+static Tweet create_instance_with_message(      Tweet        tweet,
+                                          const std::string& message)
+{
+  tweet.text = message;
+  return tweet;
+}
 
 friend std::ostream &operator<<(std::ostream& o, const Tweet& s) {
+  std::string mentions; for (const auto& mention : s.mentions) mentions += mention;
+  std::string hashtags; for (const auto& hashtag : s.hashtags) hashtags += hashtag;
+  std::string urls;     for (const auto& url : s.urls)         urls     += url;
+  o << "ID             :" << s.id              << '\n'
+    << "TEXT           :" << s.text            << '\n'
+    << "MENTIONS       :" << mentions          << '\n'
+    << "HASHTAGS       :" << hashtags          << '\n'
+    << "LIKES          :" << s.likes()         << '\n'
+    << "RETWEETS       :" << s.retweets()      << '\n'
+    << "URLS           :" << urls              << '\n'
+    << "AUTHOR_ID      :" << s.author_id       << '\n'
+    << "USERNAME       :" << s.username        << '\n'
+    << "FOLLOWERS      :" << s.followers()     << '\n'
+    << "FRIENDS        :" << s.friends()       << '\n'
+    << "PROFILE_IMG_URL:" << s.profile_img_url << '\n';
   return o;
 }
 

@@ -152,7 +152,8 @@ bool Client::HasAuth() {
  * @param id
  * @return std::vector<Tweet>
  */
-std::vector<Tweet> Client::FetchUserTweets(UserID id) {
+std::vector<Tweet> Client::FetchUserTweets(UserID id, uint8_t max)
+{
   using json = nlohmann::json;
   using namespace constants;
 
@@ -162,12 +163,14 @@ std::vector<Tweet> Client::FetchUserTweets(UserID id) {
     cpr::Url{URL},
     cpr::Header{
       {HEADER_NAMES.at(HEADER_ACCEPT_INDEX), HEADER_VALUES.at(ACCEPT_JSON_INDEX)},
-      {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+      {HEADER_NAMES.at(HEADER_AUTH_INDEX),   m_authenticator.GetBearerAuth()}
     },
     cpr::Parameters{
-      {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX),  GetDefaultFields()},
+      {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()},
       {PARAM_NAMES.at(PARAM_NAME_USER_FIELDS_INDEX),  GetUserFields()   },
-      {PARAM_NAMES.at(PARAM_NAME_MEDIA_FIELDS_INDEX), GetMediaFields()  }
+      {PARAM_NAMES.at(PARAM_NAME_MEDIA_FIELDS_INDEX), GetMediaFields()  },
+      {"expansions", "attachments.media_keys"},
+      {"max_results", std::to_string(max)}
     }
   )};
 
@@ -179,13 +182,41 @@ std::vector<Tweet> Client::FetchUserTweets(UserID id) {
   return ParseTweetsFromJSON(response.json());
 }
 
+std::vector<Tweet> Client::FetchUserTweetsV1(UserID username, uint8_t max)
+{
+  using json = nlohmann::json;
+  using namespace constants;
+
+  const std::string URL = BASE_URL + PATH_V1.at(USER_INDEX);
+
+  RequestResponse response{cpr::Get(
+    cpr::Url{URL},
+    cpr::Header{
+      {HEADER_NAMES.at(HEADER_ACCEPT_INDEX), HEADER_VALUES.at(ACCEPT_JSON_INDEX)},
+      {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+    },
+    cpr::Parameters{
+      {PARAM_NAMES.at(PARAM_NAME_SCREEN_NAME_INDEX), username},
+      {"count",                                      std::to_string(max)}
+    }
+  )};
+
+  if (response.error)
+    log(response.GetError());
+
+  log(response.text());
+
+  return ParseV1TweetsFromJSON(response.json());
+}
+
 /**
  * @brief FetchChildStatuses
  *
  * @param   [in]  {TweetID}              id
  * @returns [out] {std::vector<Tweet>}
  */
-std::vector<Tweet> Client::FetchChildTweets(TweetID id) {
+std::vector<Tweet> Client::FetchChildTweets(TweetID id)
+{
   // using json = nlohmann::json;
   // using namespace constants;
 
@@ -242,34 +273,37 @@ bool Client::PostTweet(Tweet tweet) {
   using json = nlohmann::json;
   using namespace constants;
 
-  const std::string URL = BASE_URL + PATH.at(TWEETS_INDEX);
-  // const std::vector<std::string> messages = ChunkMessage(tweet.text);
-  // std::string                    reply_to_id = tweet.replying_to_id;
+  const std::string URL = BASE_URL + PATH_V1.at(TWEETS_INDEX);
+  const std::vector<std::string> messages = ChunkMessage(tweet.text);
+        std::string              reply_id = tweet.in_reply_to_status_id;
 
-  // for (const auto& message : messages) {
-  //   Tweet outgoing_status = Tweet::create_instance_with_message(tweet, message, reply_to_id);
+  for (const auto& message : messages) {
+    Tweet outgoing_tweet = Tweet::create_instance_with_message(tweet, message);
 
-  //   RequestResponse response{cpr::Post(
-  //     cpr::Url{URL},
-  //     cpr::Header{
-  //       {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
-  //     },
-  //     cpr::Body{outgoing_status.postdata()},
-  //     cpr::VerifySsl{m_authenticator.verify_ssl()}
-  //   )};
+    RequestResponse response{cpr::Post(
+      cpr::Url{URL},
+      cpr::Header{
+        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+      },
+      cpr::Parameters{
+        {PARAM_NAMES.at(PARAM_NAME_STATUS_INDEX), outgoing_tweet.text}
+        // {PARAM_NAMES.at(PARAM_NAME_REPLY_ID_INDEX), outgoing_tweet.in_reply_to_status_id}
+      },
+      cpr::VerifySsl{m_authenticator.verify_ssl()}
+    )};
 
-  //   if (response.error)
-  //     throw request_error(response.GetError());
+    if (response.error)
+      throw request_error(response.GetError());
 
-  //   Tweet returned_status = JSONToTweet(response.json());
+    Tweet returned_status = JSONToTweet(response.json());
 
-  //   if (returned_status.content.empty())
-  //     return false;
+    if (returned_status.text.empty())
+      return false;
 
-  //   m_tweets.emplace_back(std::move(returned_status));
+    m_tweets.emplace_back(std::move(returned_status));
 
-  //   reply_to_id = std::to_string(returned_status.id);
-  // }
+    reply_id = returned_status.id;
+  }
 
   return true;
 }
@@ -378,6 +412,34 @@ Tweet Client::GetPostedTweet()
   }
 
   return tweet;
+}
+
+std::vector<Tweet>  Client::FetchTweets(const std::string& subject)
+{
+  using namespace constants;
+
+  static const std::string URL = BASE_URL + PATH_V1.at(TWEETS_V1_INDEX);
+
+  RequestResponse response{
+    cpr::Get(
+      cpr::Url{URL},
+      cpr::Header{
+        {HEADER_NAMES.at(HEADER_ACCEPT_INDEX), HEADER_VALUES.at(ACCEPT_JSON_INDEX)},
+        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+      },
+      cpr::Parameters{
+        {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()},
+        {PARAM_NAMES.at(PARAM_NAME_QUERY_INDEX), subject}
+      }
+    )
+  };
+
+  log(response.text());
+
+  if (response.error)
+    log(response.GetError());
+
+  return ParseV1StatusesFromJSON(response.json());
 }
 
 } // namespace kwitter

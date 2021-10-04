@@ -58,33 +58,143 @@ static std::vector<Tweet> ParseTweetsFromJSON(const nlohmann::json& data)
 {
   std::vector<Tweet> tweets{};
 
-  if (!data.is_null() && data.contains("data"))
-  for (const auto& item : data["data"])
+  try
+  {
+    if (!data.is_null() && data.contains("data"))
+    for (const auto& item : data["data"])
+    {
+      Tweet tweet{};
+      tweet.id              = kjson::GetJSONStringValue(item, "id");
+      tweet.text            = kjson::GetJSONStringValue(item, "text");
+      tweet.author_id       = kjson::GetJSONStringValue(item, "author_id");
+      tweet.conversation_id = kjson::GetJSONStringValue(item, "conversation_id");
+      tweet.created_at      = kjson::GetJSONStringValue(item, "created_at");
+      if (item.contains("entities"))
+      {
+        for (const auto& entity : item["entities"].items())
+        {
+          if (entity.key() == "mentions")
+          {
+            for (const auto& mention : entity.value())
+              tweet.mentions.emplace_back(mention);
+          }
+          else
+          if (entity.key() == "urls")
+          {
+            for (const auto& url : entity.value())
+              tweet.urls.emplace_back(url);
+          }
+        }
+      }
+      tweets.emplace_back(tweet);
+    }
+  }
+  catch (const std::exception& e)
+  {
+    kwitter::log("Exception was caught: ", e.what());
+  }
+
+  return tweets;
+}
+
+static std::vector<Tweet> ParseV1TweetsFromJSON(const nlohmann::json& data)
+{
+  std::vector<Tweet> tweets{};
+
+  if (!data.is_null() && data.is_array())
+  for (const auto& item : data)
   {
     Tweet tweet{};
-    tweet.id              = kjson::GetJSONStringValue(item, "id");
-    tweet.text            = kjson::GetJSONStringValue(item, "text");
-    tweet.author_id       = kjson::GetJSONStringValue(item, "author_id");
-    tweet.conversation_id = kjson::GetJSONStringValue(item, "conversation_id");
-    tweet.created_at      = kjson::GetJSONStringValue(item, "created_at");
+    tweet.id              = kjson::GetJSONStringValue   (item,         "id_str");
+    tweet.text            = kjson::GetJSONStringValue   (item,         "text");
+    tweet.author_id       = kjson::GetJSONStringValue   (item["user"], "id_str");
+    tweet.username        = kjson::GetJSONStringValue   (item["user"], "screen_name");
+    tweet.followers_count = kjson::GetJSONValue<int32_t>(item["user"], "followers_count");
+    tweet.friends_count   = kjson::GetJSONValue<int32_t>(item["user"], "friends_count");
+    tweet.profile_img_url = kjson::GetJSONStringValue   (item["user"], "profile_image_url_https");
+    tweet.created_at      = kjson::GetJSONStringValue   (item,         "created_at");
+    tweet.retweet_count   = kjson::GetJSONValue<int32_t>(item,         "retweet_count");
+    tweet.favourite_count = kjson::GetJSONValue<int32_t>(item,         "favorite_count");
+
     if (item.contains("entities"))
     {
       for (const auto& entity : item["entities"].items())
       {
-        if (entity.key() == "mentions")
+        if (entity.key() == "user_mentions")
         {
           for (const auto& mention : entity.value())
-            tweet.mentions.emplace_back(mention);
+            tweet.mentions.emplace_back(kjson::GetJSONStringValue(mention, "screen_name"));
         }
         else
-        if (entity.key() == "urls")
+        if (entity.key() == "hashtags")
         {
-          for (const auto& url : entity.value())
-            tweet.urls.emplace_back(url);
+          for (const auto& hashtag : entity.value())
+            tweet.hashtags.emplace_back(kjson::GetJSONStringValue(hashtag, "text"));
+        }
+        else
+        if (entity.key() == "media")
+        {
+          for (const auto& media : entity.value())
+            tweet.urls.emplace_back(kjson::GetJSONStringValue(media, "media_url_https"));
         }
       }
     }
     tweets.emplace_back(tweet);
+  }
+
+  return tweets;
+}
+
+static std::vector<Tweet> ParseV1StatusesFromJSON(const nlohmann::json& json_data)
+{
+  std::vector<Tweet> tweets{};
+
+  if (json_data.contains("statuses"))
+  {
+    const nlohmann::json& data = json_data["statuses"];
+
+    if (!data.is_null() && data.is_array())
+    {
+      for (const auto& item : data)
+      {
+        Tweet tweet{};
+        tweet.id              = kjson::GetJSONStringValue   (item,         "id_str");
+        tweet.text            = kjson::GetJSONStringValue   (item,         "text");
+        tweet.author_id       = kjson::GetJSONStringValue   (item["user"], "id_str");
+        tweet.username        = kjson::GetJSONStringValue   (item["user"], "screen_name");
+        tweet.followers_count = kjson::GetJSONValue<int32_t>(item["user"], "followers_count");
+        tweet.friends_count   = kjson::GetJSONValue<int32_t>(item["user"], "friends_count");
+        tweet.profile_img_url = kjson::GetJSONStringValue   (item["user"], "profile_image_url_https");
+        tweet.created_at      = kjson::GetJSONStringValue   (item,         "created_at");
+        tweet.retweet_count   = kjson::GetJSONValue<int32_t>(item,         "retweet_count");
+        tweet.favourite_count = kjson::GetJSONValue<int32_t>(item,         "favourites_count");
+
+        if (item.contains("entities"))
+        {
+          for (const auto& entity : item["entities"].items())
+          {
+            if (entity.key() == "user_mentions")
+            {
+              for (const auto& mention : entity.value())
+                tweet.mentions.emplace_back(kjson::GetJSONStringValue(mention, "screen_name"));
+            }
+            else
+            if (entity.key() == "hashtags")
+            {
+              for (const auto& hashtag : entity.value())
+                tweet.hashtags.emplace_back(kjson::GetJSONStringValue(hashtag, "text"));
+            }
+            else
+            if (entity.key() == "media")
+            {
+              for (const auto& media : entity.value())
+                tweet.urls.emplace_back(kjson::GetJSONStringValue(media, "media_url_https"));
+            }
+          }
+        }
+        tweets.emplace_back(tweet);
+      }
+    }
   }
 
   return tweets;
@@ -115,7 +225,6 @@ inline std::vector<Tweet> JSONToTweets(nlohmann::json data) {
   return tweets;
 }
 
-
 inline std::vector<Tweet> JSONContextToTweets(nlohmann::json data) {
   std::vector<Tweet> tweets{};
   std::string s = data.dump();
@@ -137,30 +246,6 @@ inline std::vector<Tweet> JSONContextToTweets(nlohmann::json data) {
 
   return tweets;
 }
-
-// inline std::vector<Conversation> JSONToConversation(nlohmann::json data) {
-//   using namespace kjson;
-
-//   std::vector<Conversation> conversations{};
-
-//   if (!data.is_null() && data.is_array()) {
-//     for (const auto& item : data) {
-//       if (!item.is_null() && item.is_object()) {
-//         std::string s = item.dump();
-//         conversations.emplace_back(
-//           Conversation{
-//             .id       = GetJSONStringValue(item, "id"),
-//             .unread   = GetJSONBoolValue(item, "unread"),
-//             .tweet   = JSONToTweet(item["last_status"]),
-//             .accounts = ParseAccountsFromJSON(item["accounts"])
-//           }
-//         );
-//       }
-//     }
-//   }
-//   return conversations;
-// }
-
 
 inline std::string PlatformFromURL(const std::string& url) {
   const std::string::size_type begin_length{8};

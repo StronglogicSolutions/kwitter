@@ -23,7 +23,7 @@ using TweetID = std::string;
 
 virtual ~TwitterStatusClient() {}
 virtual Tweet              FetchTweet(TweetID id) = 0;
-virtual std::vector<Tweet> FetchUserTweets(UserID id) = 0;
+virtual std::vector<Tweet> FetchUserTweets(UserID id, uint8_t max) = 0;
 virtual bool                PostTweet(Tweet tweet) = 0;
 };
 

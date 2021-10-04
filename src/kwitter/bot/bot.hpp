@@ -36,16 +36,10 @@ Bot(const std::string& username = "")
  */
 template <typename T = File>
 bool PostTweet(Tweet tweet = Tweet{}, std::vector<T> files = GetDefaultFilesArg()) {
-  try {
-    if constexpr(
-      std::is_same_v<T, File> || std::is_same_v<T, std::string>
-    )
-    return m_client.PostTweet(
-      // Tweet.is_valid() ?
-        tweet,
-        // m_gen_fn_ptr(),
-      files
-    );
+  try
+  {
+    if constexpr(std::is_same_v<T, File> || std::is_same_v<T, std::string>)
+      return m_client.PostTweet(tweet, files);
   }
   catch (const std::exception& e)
   {
@@ -83,9 +77,14 @@ Tweet FetchTweet(TwitterStatusClient::TweetID id)
   return m_client.FetchTweet(id);
 }
 
-std::vector<Tweet> FetchUserTweets(const std::string& user_id)
+std::vector<Tweet> FetchUserTweets(const std::string& user_id, uint8_t max = 10)
 {
   return m_client.FetchUserTweets(user_id);
+}
+
+std::vector<Tweet> FetchUserTweetsV1(const std::string& username, uint8_t max = 10)
+{
+  return m_client.FetchUserTweetsV1(username);
 }
 
 const bool SetUser(const std::string& username)
