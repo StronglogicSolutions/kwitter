@@ -69,13 +69,18 @@ TEST(KTwitterTests, FetchPopularTweetsBySubject)
   kwitter::Client client{};
   Tweet           trending_tweet;
   Tweets          tweets = client.FetchTweets("Korean");
-  int32_t         count{};
+  int32_t         score{};
 
   for (const Tweet& tweet : tweets)
   {
     kwitter::log(tweet);
-    if (tweet.favourite_count > count || tweet.retweet_count > count)
+    int32_t popularity_score = (tweet.favourite_count > tweet.retweet_count) ?
+                                 tweet.favourite_count : tweet.retweet_count;
+    if (popularity_score > score)
+    {
       trending_tweet = tweet;
+      score = popularity_score;
+    }
   }
 
   kwitter::log("Most popular tweet was:");
