@@ -14,9 +14,9 @@ const std::string USER_CONFIG_KEY    {"user"};
 const std::string CREDS_PATH_KEY     {"credentials_path"};
 const std::string TOKENS_PATH_KEY    {"token_path"};
 
-const uint32_t TWITTER_CHAR_LIMIT = 0xDC;
+const uint32_t TWITTER_CHAR_LIMIT  = 0xDC;
 const uint8_t  HEADER_AUTH_INDEX   = 0x00;
-const uint8_t  HEADER_ACCEPT_INDEX   = 0x01;
+const uint8_t  HEADER_ACCEPT_INDEX = 0x01;
 
 const std::vector<std::string> HEADER_NAMES{
 "Authorization",
@@ -32,10 +32,18 @@ const std::vector<std::string> HEADER_VALUES{
 const uint8_t PARAM_NAME_TWEET_FIELDS_INDEX = 0x00;
 const uint8_t PARAM_NAME_USER_FIELDS_INDEX  = 0x01;
 const uint8_t PARAM_NAME_MEDIA_FIELDS_INDEX = 0x02;
+const uint8_t PARAM_NAME_SCREEN_NAME_INDEX  = 0x03;
+const uint8_t PARAM_NAME_STATUS_INDEX       = 0x04;
+const uint8_t PARAM_NAME_REPLY_ID_INDEX     = 0x05;
+const uint8_t PARAM_NAME_QUERY_INDEX        = 0x06;
 const std::vector<std::string> PARAM_NAMES{
   "tweet.fields",
   "user.fields",
-  "media.fields"
+  "media.fields",
+  "screen_name",
+  "status",
+  "in_reply_to_status_id",
+  "q"
 };
 
 const uint8_t PARAM_VALUE_ATTACHMENTS_INDEX         = 0x00;
@@ -81,15 +89,26 @@ const std::vector<std::string> PARAM_VALUES{
   "type",
   "media_key",
   "url",
-  "media_url"
+  "media_url",
+  "favorite_count",
+  "retweet_count",
+  "followers_count",
+  "friends_count"
 };
 // namespace  {
 static const std::string BASE_URL{"https://api.twitter.com"};
-static const uint8_t     TWEETS_INDEX = 0x00;
-static const uint8_t     USER_INDEX   = 0x01;
+static const uint8_t     TWEETS_INDEX    = 0x00;
+static const uint8_t     USER_INDEX      = 0x01;
+static const uint8_t     TWEETS_V1_INDEX = 0x02;
 static const std::vector<std::string> PATH{
   "/2/tweets",
   "/2/users"
+};
+
+static const std::vector<std::string> PATH_V1{
+  "/1.1/statuses/update.json",
+  "/1.1/statuses/user_timeline.json",
+  "/1.1/search/tweets.json"
 };
 
 } // namespace constants

@@ -67,9 +67,11 @@ inline nlohmann::json LoadJSONFile(std::string path) {
  *
  * @param
  */
-template<typename T>
-inline void log(T s) {
-  std::cout << s << std::endl;
+template<typename... Args>
+inline void log(Args... args) {
+  for (const auto& s : {args...})
+    std::cout << s;
+  std::cout << std::endl;
 }
 
 inline std::string SanitizeOutput(const std::string& s) {
