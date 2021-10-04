@@ -83,6 +83,11 @@ Tweet FetchTweet(TwitterStatusClient::TweetID id)
   return m_client.FetchTweet(id);
 }
 
+std::vector<Tweet> FetchUserTweets(const std::string& user_id)
+{
+  return m_client.FetchUserTweets(user_id);
+}
+
 const bool SetUser(const std::string& username)
 {
   return m_client.SetUser(username);

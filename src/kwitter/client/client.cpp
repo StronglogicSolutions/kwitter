@@ -27,6 +27,25 @@ const std::string GetDefaultFields()
   PARAM_VALUES.at(PARAM_VALUE_WITHHELD_INDEX);
 }
 
+const std::string GetMediaFields()
+{
+  using namespace constants;
+  return
+  PARAM_VALUES.at(PARAM_VALUE_PREVIMG_URL_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_TYPE_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_MEDIAKEY_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_URL_INDEX);
+}
+
+const std::string GetUserFields()
+{
+  using namespace constants;
+  return
+  PARAM_VALUES.at(PARAM_VALUE_PROFILEURL_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_NAME_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_USERNAME_INDEX);
+}
+
 /**
  * @brief Chunk Message
  *
@@ -134,20 +153,30 @@ bool Client::HasAuth() {
  * @return std::vector<Tweet>
  */
 std::vector<Tweet> Client::FetchUserTweets(UserID id) {
-  // using json = nlohmann::json;
-  // using namespace constants;
-  // // api/v1/accounts/:id/tweets
-  // const std::string URL = m_authenticator.GetBaseURL() + PATH.at(ACCOUNTS_INDEX) + '/' + id + "/tweets";
+  using json = nlohmann::json;
+  using namespace constants;
 
-  // cpr::Response r = cpr::Get(
-  //   cpr::Url{URL}
-  // );
+  const std::string URL = BASE_URL + PATH.at(USER_INDEX) + '/' + id + "/tweets";
 
-  // if (!r.text.empty()) {
-  //   return JSONToTweets(json::parse(r.text, nullptr, constants::JSON_PARSE_NO_THROW));
-  // }
+  RequestResponse response{cpr::Get(
+    cpr::Url{URL},
+    cpr::Header{
+      {HEADER_NAMES.at(HEADER_ACCEPT_INDEX), HEADER_VALUES.at(ACCEPT_JSON_INDEX)},
+      {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+    },
+    cpr::Parameters{
+      {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX),  GetDefaultFields()},
+      {PARAM_NAMES.at(PARAM_NAME_USER_FIELDS_INDEX),  GetUserFields()   },
+      {PARAM_NAMES.at(PARAM_NAME_MEDIA_FIELDS_INDEX), GetMediaFields()  }
+    }
+  )};
 
-  return std::vector<Tweet>{};
+  if (response.error)
+    log(response.GetError());
+
+  log(response.text());
+
+  return ParseTweetsFromJSON(response.json());
 }
 
 /**

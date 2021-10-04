@@ -34,7 +34,7 @@ virtual Account             GetAccount() override;
         bool                SetUser(const std::string& username);
 
         bool                HasPostedTweets() const;
-        Tweet              GetPostedTweet();
+        Tweet               GetPostedTweet();
 
 std::vector<Conversation>   FetchConversations();
 

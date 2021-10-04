@@ -290,8 +290,10 @@ using Attachments = std::vector<Attachment>;
 Tweet() {}
 std::string	id;
 std::string text;
-
-Attachments attachments;
+std::vector<std::string> mentions;
+std::vector<std::string> hashtags;
+std::vector<std::string> urls;
+// Attachments attachments;
 
 // "attachments": {
 //     "poll_ids": [
