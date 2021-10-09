@@ -20,7 +20,7 @@ std::string              username;
 // Language                 language = Language::korean;
 };
 
-inline ExecuteConfig ParseRuntimeArguments(int argc, char** argv) {
+static ExecuteConfig ParseRuntimeArguments(int argc, char** argv) {
   ExecuteConfig config{};
 
   for (int i = 1; i < argc; i++) {

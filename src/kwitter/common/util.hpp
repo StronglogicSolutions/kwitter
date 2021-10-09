@@ -10,7 +10,7 @@
 #include <sstream>
 
 namespace kwitter {
-inline const std::string get_executable_cwd() {
+static const std::string get_executable_cwd() {
   char* path = realpath("/proc/self/exe", NULL);
   char* name = basename(path);
   std::string executable_cwd{path, path + strlen(path) - strlen(name)};
@@ -21,7 +21,7 @@ inline const std::string get_executable_cwd() {
 /**
  * SaveToFile
  */
-inline void SaveToFile(std::string data, std::string path) {
+static void SaveToFile(std::string data, std::string path) {
   std::ofstream o{path};
   o << data;
 }
@@ -30,7 +30,7 @@ inline void SaveToFile(std::string data, std::string path) {
  * SaveToFile
  */
 template <typename T>
-inline void SaveToFile(T data, std::string path) {
+static void SaveToFile(T data, std::string path) {
   std::ofstream o{path};
   o << data;
 }
@@ -38,7 +38,8 @@ inline void SaveToFile(T data, std::string path) {
 /**
  * ReadFromFile
  */
-inline std::string ReadFromFile(std::string path) {
+static std::string ReadFromFile(std::string path)
+{
   std::ifstream f{path};
   std::stringstream fs{};
   fs << f.rdbuf();
@@ -51,13 +52,15 @@ inline std::string ReadFromFile(std::string path) {
  * @param path
  * @return std::vector<uint8_t>
  */
-inline std::vector<uint8_t> ReadBytesFromFile(std::string path) {
+static std::vector<uint8_t> ReadBytesFromFile(std::string path)
+{
   std::string file = ReadFromFile(path);
 
   return std::vector<uint8_t>{file.begin(), file.end()};
 }
 
-inline nlohmann::json LoadJSONFile(std::string path) {
+static nlohmann::json LoadJSONFile(std::string path)
+{
   using namespace nlohmann;
   return json::parse(ReadFromFile(path), nullptr, constants::JSON_PARSE_NO_THROW);
 }
@@ -68,13 +71,15 @@ inline nlohmann::json LoadJSONFile(std::string path) {
  * @param
  */
 template<typename... Args>
-inline void log(Args... args) {
+static void log(Args... args)
+{
   for (const auto& s : {args...})
     std::cout << s;
   std::cout << std::endl;
 }
 
-inline std::string SanitizeOutput(const std::string& s) {
+static std::string SanitizeOutput(const std::string& s)
+{
   std::string o{};
 
   for (const char& c : s) {
@@ -104,7 +109,8 @@ inline std::string SanitizeOutput(const std::string& s) {
  * @param   [in] {std::string}
  * @returns [in] {std::string}
  */
-inline std::string SanitizeJSON(std::string s) {
+static std::string SanitizeJSON(std::string s)
+{
   s.erase(
     std::remove(s.begin(), s.end(),'\"'),
     s.end()
@@ -120,7 +126,8 @@ inline std::string SanitizeJSON(std::string s) {
  * @param   [in] {std::string}
  * @returns [in] {std::string}
  */
-inline std::string SanitizeInput(std::string s) {
+static std::string SanitizeInput(std::string s)
+{
   s.erase(
     std::remove_if(s.begin(), s.end(), [](char c){
       return c == '\'' || c == '\"';
@@ -137,7 +144,8 @@ inline std::string SanitizeInput(std::string s) {
  *
  * @param [in] {std::string&} A reference to a string object
  */
-inline std::string StripLineBreaks(std::string s) {
+static std::string StripLineBreaks(std::string s)
+{
   s.erase(
     std::remove(s.begin(), s.end(),'\n'),
     s.end()
@@ -153,7 +161,8 @@ inline std::string StripLineBreaks(std::string s) {
  * @param
  * @returns
  */
-inline std::string CreateStringWithBreaks(const std::string &in, const size_t every_n) {
+static std::string CreateStringWithBreaks(const std::string &in, const size_t every_n)
+{
   std::string out{};
   out.reserve(in.size() + in.size() / every_n);
   for(std::string::size_type i = 0; i < in.size(); i++) {
@@ -164,7 +173,8 @@ inline std::string CreateStringWithBreaks(const std::string &in, const size_t ev
   return out;
 }
 
-inline uint64_t string_to_uint64(const std::string& s) {
+static uint64_t string_to_uint64(const std::string& s)
+{
   uint64_t    value{};
   const char* ptr = s.c_str();
   const char* termination_character = ptr + s.size();
@@ -176,7 +186,7 @@ inline uint64_t string_to_uint64(const std::string& s) {
   return value;
 }
 
-inline std::string FetchTemporaryFile(const std::string& full_url, const bool verify_ssl = true)
+static std::string FetchTemporaryFile(const std::string& full_url, const bool verify_ssl = true)
 {
   auto ext_end = full_url.find_first_of('?');
   ext_end      = ext_end == std::string::npos ? full_url.size() : ext_end;
@@ -195,9 +205,24 @@ inline std::string FetchTemporaryFile(const std::string& full_url, const bool ve
   return filename;
 }
 
-inline void EraseFile(const std::string& path)
+static void EraseFile(const std::string& path)
 {
   std::remove(path.c_str());
+}
+
+/**
+ * to_unixtime
+ *
+ * @param
+ * @returns
+ */                                                                                  // "Sat Oct 09 00:58:39 +0000 2021"
+static const std::string to_unixtime(const std::string& datetime, const char* pattern = "%a %b %d %H:%M:%S +0000 %Y")
+{
+  std::tm            t{};
+  std::istringstream ss{datetime};
+
+  ss >> std::get_time(&t, pattern);
+  return std::to_string(mktime(&t));
 }
 
 } // ns kwitter
