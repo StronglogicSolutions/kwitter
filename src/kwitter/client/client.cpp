@@ -430,11 +430,10 @@ std::vector<Tweet>  Client::FetchTweets(const std::string& subject)
       cpr::Parameters{
         {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()},
         {PARAM_NAMES.at(PARAM_NAME_QUERY_INDEX), subject}
-      }
+      },
+      cpr::VerifySsl{false}
     )
   };
-
-  log(response.text());
 
   if (response.error)
     log(response.GetError());

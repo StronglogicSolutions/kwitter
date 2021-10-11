@@ -28,5 +28,11 @@ int main(int argc, char** argv)
       if (!config.message.empty())
         std_out += twitter_bot.FetchTweetsByTopicJSON(config.message);
   }
+
+  if (std_out.empty())
+    throw std::runtime_error{"Application did not yield output"};
+
+  kwitter::log(std_out);
+
   return 0;
 }
