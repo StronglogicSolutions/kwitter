@@ -100,8 +100,8 @@ std::string FetchTweetsByTopicJSON(const std::string& topic, uint8_t max = 50)
     return a_num > b_num;
   });
 
-  const auto final_tweets = (tweets.size() > 3) ?
-    Tweets{tweets.begin(), tweets.begin() + 3} : tweets;
+  const Tweets final_tweets = (tweets.size() > 5) ?
+    Tweets{tweets.begin(), tweets.begin() + 5} : tweets;
   return Tweet::TweetsToJSON(final_tweets);
 }
 

@@ -396,9 +396,9 @@ static const std::string TweetsToJSON(const std::vector<Tweet> tweets)
       data["hashtags"]  = tweet.tags_to_string(true);
     if (tweet.has_mentions())
       data["mentions"] = tweet.mentions_to_string(true);
-    json_array.emplace_back(data);
     if (tweet.has_media())
       data["urls"] = tweet.media_to_string();
+    json_array.emplace_back(data);
   }
 
   return json_array.dump();
