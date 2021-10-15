@@ -206,13 +206,13 @@ static std::vector<Tweet> ParseV1StatusesFromJSON(const nlohmann::json& json_dat
  * @param data
  * @return Tweet
  */
-inline Tweet JSONToTweet(nlohmann::json data) {
+static Tweet JSONToTweet(nlohmann::json data) {
   using namespace kjson;
   Tweet tweet{};
   return tweet;
 }
 
-inline std::vector<Tweet> JSONToTweets(nlohmann::json data) {
+static std::vector<Tweet> JSONToTweets(nlohmann::json data) {
   std::vector<Tweet> tweets{};
   if (!data.is_null() && data.is_array())
     for (const auto& status_data : data)
@@ -225,7 +225,7 @@ inline std::vector<Tweet> JSONToTweets(nlohmann::json data) {
   return tweets;
 }
 
-inline std::vector<Tweet> JSONContextToTweets(nlohmann::json data) {
+static std::vector<Tweet> JSONContextToTweets(nlohmann::json data) {
   std::vector<Tweet> tweets{};
   std::string s = data.dump();
 
@@ -247,7 +247,7 @@ inline std::vector<Tweet> JSONContextToTweets(nlohmann::json data) {
   return tweets;
 }
 
-inline std::string PlatformFromURL(const std::string& url) {
+static std::string PlatformFromURL(const std::string& url) {
   const std::string::size_type begin_length{8};
   auto begin = url.find_first_of("https://");
   std::string return_s{};
@@ -259,6 +259,5 @@ inline std::string PlatformFromURL(const std::string& url) {
   }
   return return_s;
 }
-
 
 } // namespace kwitter

@@ -285,7 +285,8 @@ struct Entity{};
 //    ]
 
 
-struct Tweet : public PostDataInterface {
+struct Tweet : public PostDataInterface
+{
 using Attachments = std::vector<Attachment>;
 Tweet() {}
 std::string	id;
@@ -377,37 +378,90 @@ friend std::ostream &operator<<(std::ostream& o, const Tweet& s) {
   return o;
 }
 
+static const std::string TweetsToJSON(const std::vector<Tweet> tweets)
+{
+  nlohmann::json json_array = nlohmann::json::array();
+
+  for (const Tweet& tweet : tweets)
+  {
+    nlohmann::json data{};
+    data["id"]       = tweet.id;
+    data["content"]  = tweet.text;
+    data["user"]     = tweet.username;
+    data["time"]     = to_unixtime(tweet.created_at);
+    data["date"]     = tweet.created_at;
+    data["likes"]    = tweet.likes();
+    data["retweets"] = tweet.retweets();
+    if (tweet.has_tags())
+      data["hashtags"]  = tweet.tags_to_string(true);
+    if (tweet.has_mentions())
+      data["mentions"] = tweet.mentions_to_string(true);
+    if (tweet.has_media())
+      data["urls"] = tweet.media_to_string();
+    json_array.emplace_back(data);
+  }
+
+  return json_array.dump();
+}
+
 virtual std::string postdata() override {
-  // std::string media_ids{};
-  // std::string delim{""};
-
-  // for (const auto& media_item : media) {
-  //   media_ids += delim + media_item.id;
-  //   delim = ",";
-  // }
-
-  // if (!visibility.empty() && !visibility_is_valid(visibility))
-  //   throw std::invalid_argument{"This visibility is not recognized"};
-
-  // std::string RC{
-  //   "status="         + content   + "&" +
-  //   "media_ids[]="    + media_ids + "&" +
-  //   "spoiler_text="   + spoiler   + "&" +
-  //   "in_reply_to_id=" + replying_to_id + "&" +
-  //   "visibility="     + visibility + "&" +
-  //   "sensitive="      + std::to_string(sensitive)
-  // };
-
-  // return RC;
-
   return "";
 }
 
-bool is_valid() const {
+bool is_valid() const
+{
   return (!text.empty());
 }
 
 virtual ~Tweet() override {}
+
+bool has_tags() const
+{
+  return !(hashtags.empty());
+}
+
+std::string tags_to_string(bool use_hash_sign = false) const
+{
+  const char delimiter = (use_hash_sign) ? '#' : ' ';
+  std::string hashtag_s{};
+  if (use_hash_sign)
+    for (const auto& hashtag : hashtags) hashtag_s += delimiter + hashtag;
+  else
+    for (const auto& hashtag : hashtags) hashtag_s += hashtag   + delimiter;
+
+  return hashtag_s;
+}
+
+bool has_mentions() const
+{
+  return !(mentions.empty());
+}
+
+std::string mentions_to_string(bool use_ampersand = false) const
+{
+  const char delimiter = (use_ampersand) ? '@' : ' ';
+  std::string mention_s{};
+  if (use_ampersand)
+    for (const auto& mention : mentions) mention_s += delimiter + mention;
+  else
+    for (const auto& mention : mentions) mention_s += mention   + delimiter;
+
+  return mention_s;
+}
+
+bool has_media() const
+{
+  return !(urls.empty());
+}
+
+std::string media_to_string() const
+{
+  const char delimiter = '>';
+  std::string url_s{};
+  for (const auto& url : urls) url_s += url + delimiter;
+
+  return url_s;
+}
 };
 
 struct Conversation {

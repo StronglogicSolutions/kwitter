@@ -87,6 +87,25 @@ std::vector<Tweet> FetchUserTweetsV1(const std::string& username, uint8_t max = 
   return m_client.FetchUserTweetsV1(username);
 }
 
+std::string FetchTweetsByTopicJSON(const std::string& topic, uint8_t max = 50)
+{
+  using Tweets = std::vector<Tweet>;
+  auto tweets = m_client.FetchTweets(topic);
+
+  std::sort(tweets.begin(), tweets.end(), [](const Tweet& a, const Tweet& b) {
+    const auto a_num = (a.favourite_count > a.retweet_count) ?
+                          a.favourite_count : a.retweet_count;
+    const auto b_num = (b.favourite_count > b.retweet_count) ?
+                          b.favourite_count : b.retweet_count;
+    return a_num > b_num;
+  });
+
+  const Tweets final_tweets = (tweets.size() > 5) ?
+    Tweets{tweets.begin(), tweets.begin() + 5} : tweets;
+  return Tweet::TweetsToJSON(final_tweets);
+}
+
+
 const bool SetUser(const std::string& username)
 {
   return m_client.SetUser(username);
