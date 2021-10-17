@@ -25,8 +25,8 @@ int main(int argc, char** argv)
     const std::string arg = kwitter::SanitizeInput(argv[i]);
 
     if (arg == "search")
-      if (!config.message.empty())
-        std_out += twitter_bot.FetchTweetsByTopicJSON(config.message);
+      if (!config.description.empty())
+        std_out += twitter_bot.FetchTweetsByTopicJSON(config.description);
   }
 
   if (std_out.empty())
