@@ -15,7 +15,8 @@ namespace kwitter {
 
 class Client : public SecureClient,
                public TwitterStatusClient,
-               public TwitterMediaClient {
+               public TwitterMediaClient
+{
 public:
 Client(const std::string& username = "");
 
