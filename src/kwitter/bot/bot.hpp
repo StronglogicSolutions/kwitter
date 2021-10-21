@@ -87,21 +87,36 @@ std::vector<Tweet> FetchUserTweetsV1(const std::string& username, uint8_t max = 
   return m_client.FetchUserTweetsV1(username);
 }
 
-std::string FetchTweetsByTopicJSON(const std::string& topic, uint8_t max = 50)
+std::string FetchTweetsByTopicJSON(const std::string& topic, bool prefer_media = false, uint8_t max = 50)
 {
   using Tweets = std::vector<Tweet>;
+  const auto SortPopularity = [](Tweets& tweets) -> void
+  {
+    std::sort(tweets.begin(), tweets.end(), [](const Tweet& a, const Tweet& b)
+    {
+      const auto a_num = (a.favourite_count > a.retweet_count) ?
+                            a.favourite_count : a.retweet_count;
+      const auto b_num = (b.favourite_count > b.retweet_count) ?
+                            b.favourite_count : b.retweet_count;
+      return a_num > b_num; }
+    );
+  };
+
+  const auto SortMedia = [](Tweets& tweets) -> void
+  {
+    std::sort(tweets.begin(), tweets.end(), [](const Tweet& a, const Tweet& b)
+    {
+      const bool a_has_media = (a.urls.size());
+      const bool b_has_media = (b.urls.size());
+      return a_has_media > b_has_media;
+    });
+  };
   auto tweets = m_client.FetchTweets(topic);
 
-  std::sort(tweets.begin(), tweets.end(), [](const Tweet& a, const Tweet& b) {
-    const auto a_num = (a.favourite_count > a.retweet_count) ?
-                          a.favourite_count : a.retweet_count;
-    const auto b_num = (b.favourite_count > b.retweet_count) ?
-                          b.favourite_count : b.retweet_count;
-    return a_num > b_num;
-  });
+  (prefer_media) ? (SortMedia(tweets)) : (SortPopularity(tweets));
 
-  const Tweets final_tweets = (tweets.size() > 5) ?
-    Tweets{tweets.begin(), tweets.begin() + 5} : tweets;
+  const Tweets final_tweets = (tweets.size() > max) ?
+    Tweets{tweets.begin(), tweets.begin() + max} : tweets;
   return Tweet::TweetsToJSON(final_tweets);
 }
 

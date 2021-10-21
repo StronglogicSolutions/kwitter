@@ -26,7 +26,9 @@ int main(int argc, char** argv)
 
     if (arg == "search")
       if (!config.description.empty())
-        std_out += twitter_bot.FetchTweetsByTopicJSON(config.description);
+        std_out += twitter_bot.FetchTweetsByTopicJSON(config.description,
+                                                      config.prefer_media,
+                                                      config.max_results);
   }
 
   if (std_out.empty())
