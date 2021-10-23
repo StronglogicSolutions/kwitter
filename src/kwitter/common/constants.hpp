@@ -36,6 +36,7 @@ const uint8_t PARAM_NAME_SCREEN_NAME_INDEX  = 0x03;
 const uint8_t PARAM_NAME_STATUS_INDEX       = 0x04;
 const uint8_t PARAM_NAME_REPLY_ID_INDEX     = 0x05;
 const uint8_t PARAM_NAME_QUERY_INDEX        = 0x06;
+const uint8_t PARAM_NAME_COUNT_INDEX        = 0x07;
 const std::vector<std::string> PARAM_NAMES{
   "tweet.fields",
   "user.fields",
@@ -43,7 +44,8 @@ const std::vector<std::string> PARAM_NAMES{
   "screen_name",
   "status",
   "in_reply_to_status_id",
-  "q"
+  "q",
+  "count"
 };
 
 const uint8_t PARAM_VALUE_ATTACHMENTS_INDEX         = 0x00;

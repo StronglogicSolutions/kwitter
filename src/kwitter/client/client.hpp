@@ -24,7 +24,7 @@ virtual ~Client() override {}
 
 virtual bool                HasAuth() override;
 virtual Tweet               FetchTweet(TweetID id) override;
-        std::vector<Tweet>  FetchTweets(const std::string& subject);
+        std::vector<Tweet>  FetchTweets(const std::string& subject, uint8_t max = 50, bool media_only=false);
 virtual std::vector<Tweet>  FetchUserTweets(UserID id, uint8_t max = 10) override;
         std::vector<Tweet>  FetchUserTweetsV1(UserID id, uint8_t max = 10);
         std::vector<Tweet>  FetchChildTweets(TweetID id);

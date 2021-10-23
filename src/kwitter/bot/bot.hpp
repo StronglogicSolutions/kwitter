@@ -111,9 +111,13 @@ std::string FetchTweetsByTopicJSON(const std::string& topic, bool prefer_media =
       return a_has_media > b_has_media;
     });
   };
-  auto tweets = m_client.FetchTweets(topic);
+  auto tweets = m_client.FetchTweets(topic, max, prefer_media);
 
-  (prefer_media) ? (SortMedia(tweets)) : (SortPopularity(tweets));
+  if (prefer_media)
+    std::remove_if(tweets.begin(), tweets.end(), [](const Tweet& tweet)
+      { return !(tweet.has_media()); });
+  else
+    SortPopularity(tweets);
 
   const Tweets final_tweets = (tweets.size() > max) ?
     Tweets{tweets.begin(), tweets.begin() + max} : tweets;

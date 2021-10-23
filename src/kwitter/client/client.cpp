@@ -414,11 +414,14 @@ Tweet Client::GetPostedTweet()
   return tweet;
 }
 
-std::vector<Tweet>  Client::FetchTweets(const std::string& subject)
+std::vector<Tweet>  Client::FetchTweets(const std::string& subject, uint8_t max, bool media_only)
 {
   using namespace constants;
-
-  static const std::string URL = BASE_URL + PATH_V1.at(TWEETS_V1_INDEX);
+  static const std::string MEDIA_FILTER{" filter:links"};
+  static const std::string NO_RETWEETS {" -filter:retweet"};
+  static const std::string URL    = BASE_URL + PATH_V1.at(TWEETS_V1_INDEX);
+         const std::string FILTER = (media_only) ? MEDIA_FILTER + NO_RETWEETS : NO_RETWEETS;
+         const std::string query  = subject + FILTER;
 
   RequestResponse response{
     cpr::Get(
@@ -429,7 +432,8 @@ std::vector<Tweet>  Client::FetchTweets(const std::string& subject)
       },
       cpr::Parameters{
         {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()},
-        {PARAM_NAMES.at(PARAM_NAME_QUERY_INDEX), subject}
+        {PARAM_NAMES.at(PARAM_NAME_QUERY_INDEX), query}//,
+        // {PARAM_NAMES.at(PARAM_NAME_COUNT_INDEX), std::to_string(max)}
       },
       cpr::VerifySsl{false}
     )
