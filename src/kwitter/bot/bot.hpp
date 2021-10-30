@@ -87,6 +87,13 @@ std::vector<Tweet> FetchUserTweetsV1(const std::string& username, uint8_t max = 
   return m_client.FetchUserTweetsV1(username);
 }
 
+std::string FetchTweetsByUserJSON(const std::string& username, uint8_t max = 10)
+{
+  auto tweets = m_client.FetchTweetsByUser(username, max);
+  // TODO: sort by date?
+
+  return Tweet::TweetsToJSON(tweets);
+}
 std::string FetchTweetsByTopicJSON(const std::string& topic, bool prefer_media = false, uint8_t max = 50)
 {
   using Tweets = std::vector<Tweet>;
