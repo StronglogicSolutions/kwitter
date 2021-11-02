@@ -163,6 +163,8 @@ static Tweet ParseV1StatusFromJSON(const nlohmann::json& data)
   };
   Tweet tweet{};
 
+  auto s = data.dump();
+
   if (!data.is_null() && data.is_object())
   {
 
@@ -203,6 +205,7 @@ static Tweet ParseV1StatusFromJSON(const nlohmann::json& data)
   }
   return tweet;
 }
+
 static std::vector<Tweet> ParseV1StatusesFromJSON(const nlohmann::json& json_data)
 {
   std::vector<Tweet> tweets{};
@@ -230,6 +233,13 @@ static std::vector<Tweet> ParseV1StatusesFromJSON(const nlohmann::json& json_dat
   return tweets;
 }
 
+static std::string ParseUserIDFromJSON(const nlohmann::json& data)
+{
+  std::string id;
+  if (!data.is_null() && data.is_array() && data.size())
+    id = data.front()["id_str"];
+  return id;
+}
 /**
  * @brief
  *

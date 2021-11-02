@@ -106,6 +106,7 @@ static const std::string BASE_URL{"https://api.twitter.com"};
 static const uint8_t     TWEETS_INDEX    = 0x00;
 static const uint8_t     USER_INDEX      = 0x01;
 static const uint8_t     TWEETS_V1_INDEX = 0x02;
+static const uint8_t     USER_V1_INDEX   = 0x03;
 static const std::vector<std::string> PATH{
   "/2/tweets",
   "/2/users"
@@ -114,7 +115,8 @@ static const std::vector<std::string> PATH{
 static const std::vector<std::string> PATH_V1{
   "/1.1/statuses/update.json",
   "/1.1/statuses/user_timeline.json",
-  "/1.1/search/tweets.json"
+  "/1.1/search/tweets.json",
+  "/1.1/users/lookup.json"
 };
 
 } // namespace constants

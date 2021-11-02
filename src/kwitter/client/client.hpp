@@ -29,6 +29,7 @@ virtual Tweet               FetchTweet(TweetID id) override;
 virtual std::vector<Tweet>  FetchUserTweets(UserID id, uint8_t max = 10) override;
         std::vector<Tweet>  FetchUserTweetsV1(UserID id, uint8_t max = 10);
         std::vector<Tweet>  FetchChildTweets(TweetID id);
+        std::string         FetchUserID(const std::string& name);
 virtual bool                PostTweet(Tweet tweet) override;
 virtual bool                PostTweet(Tweet tweet, std::vector<File> media) override;
         bool                PostTweet(Tweet tweet, std::vector<std::string> media);
