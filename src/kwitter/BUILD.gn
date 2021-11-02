@@ -91,9 +91,6 @@ executable("kwitter") {
   ]
 
   libs = [
-    "pthread",
-    "crypto",
-    "curl",
     "cpr"
   ]
 
@@ -112,9 +109,6 @@ shared_library("kwitter_lib") {
   ]
 
   libs = [
-    "pthread",
-    "crypto",
-    "curl",
     "cpr"
   ]
 

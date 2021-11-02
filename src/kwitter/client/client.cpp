@@ -204,8 +204,6 @@ std::vector<Tweet> Client::FetchUserTweetsV1(UserID username, uint8_t max)
   if (response.error)
     log(response.GetError());
 
-  log(response.text());
-
   return ParseV1TweetsFromJSON(response.json());
 }
 
