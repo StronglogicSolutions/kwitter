@@ -422,10 +422,12 @@ bool has_tags() const
 
 std::string tags_to_string(bool use_hash_sign = false) const
 {
-  const char delimiter = (use_hash_sign) ? '#' : ' ';
-  std::string hashtag_s{};
+  static const char  space     = ' ';
+  static const char  hash      = '#';
+         const char  delimiter = (use_hash_sign) ? hash : space;
+         std::string hashtag_s{};
   if (use_hash_sign)
-    for (const auto& hashtag : hashtags) hashtag_s += delimiter + hashtag;
+    for (const auto& hashtag : hashtags) hashtag_s += delimiter + hashtag + space;
   else
     for (const auto& hashtag : hashtags) hashtag_s += hashtag   + delimiter;
 
