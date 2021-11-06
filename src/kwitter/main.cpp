@@ -29,6 +29,10 @@ int main(int argc, char** argv)
         std_out += twitter_bot.FetchTweetsByTopicJSON(config.description,
                                                       config.prefer_media,
                                                       config.max_results);
+    if (arg == "usersearch")
+      if (!config.username.empty())
+        std_out += twitter_bot.FetchTweetsByUserJSON(config.username,
+                                                     config.max_results);
   }
 
   if (std_out.empty())

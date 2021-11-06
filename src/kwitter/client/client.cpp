@@ -204,8 +204,6 @@ std::vector<Tweet> Client::FetchUserTweetsV1(UserID username, uint8_t max)
   if (response.error)
     log(response.GetError());
 
-  log(response.text());
-
   return ParseV1TweetsFromJSON(response.json());
 }
 
@@ -445,4 +443,57 @@ std::vector<Tweet>  Client::FetchTweets(const std::string& subject, uint8_t max,
   return ParseV1StatusesFromJSON(response.json());
 }
 
+std::vector<Tweet>  Client::FetchTweetsByUser(const std::string& username, uint8_t max)
+{
+    using namespace constants;
+  static const std::string URL = BASE_URL + PATH_V1.at(TWEETS_V1_INDEX);
+         const std::string query{"from@" + username};
+
+  RequestResponse response{
+    cpr::Get(
+      cpr::Url{URL},
+      cpr::Header{
+        {HEADER_NAMES.at(HEADER_ACCEPT_INDEX), HEADER_VALUES.at(ACCEPT_JSON_INDEX)},
+        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+      },
+      cpr::Parameters{
+        {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()},
+        {PARAM_NAMES.at(PARAM_NAME_QUERY_INDEX),        query},
+        {PARAM_NAMES.at(PARAM_NAME_RESULT_TYPE_INDEX),  PARAM_VALUES.at(PARAM_VALUE_RECENT_INDEX)}
+      },
+      cpr::VerifySsl{false}
+    )
+  };
+
+  if (response.error)
+    log(response.GetError());
+
+  return ParseV1StatusesFromJSON(response.json());
+}
+
+std::string Client::FetchUserID(const std::string& name)
+{
+  using namespace constants;
+  static const std::string URL = BASE_URL + PATH_V1.at(USER_V1_INDEX);
+
+  RequestResponse response{
+    cpr::Get(
+      cpr::Url{URL},
+      cpr::Header{
+        {HEADER_NAMES.at(HEADER_ACCEPT_INDEX), HEADER_VALUES.at(ACCEPT_JSON_INDEX)},
+        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+      },
+      cpr::Parameters{
+        {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()},
+        {PARAM_NAMES.at(PARAM_NAME_SCREEN_NAME_INDEX),        name}
+      },
+      cpr::VerifySsl{false}
+    )
+  };
+
+  if (response.error)
+    log(response.GetError());
+
+  return ParseUserIDFromJSON(response.json());
+}
 } // namespace kwitter

@@ -37,6 +37,7 @@ const uint8_t PARAM_NAME_STATUS_INDEX       = 0x04;
 const uint8_t PARAM_NAME_REPLY_ID_INDEX     = 0x05;
 const uint8_t PARAM_NAME_QUERY_INDEX        = 0x06;
 const uint8_t PARAM_NAME_COUNT_INDEX        = 0x07;
+const uint8_t PARAM_NAME_RESULT_TYPE_INDEX  = 0x08;
 const std::vector<std::string> PARAM_NAMES{
   "tweet.fields",
   "user.fields",
@@ -45,7 +46,8 @@ const std::vector<std::string> PARAM_NAMES{
   "status",
   "in_reply_to_status_id",
   "q",
-  "count"
+  "count",
+  "result_type"
 };
 
 const uint8_t PARAM_VALUE_ATTACHMENTS_INDEX         = 0x00;
@@ -69,6 +71,7 @@ const uint8_t PARAM_VALUE_TYPE_INDEX                = 0x11;
 const uint8_t PARAM_VALUE_MEDIAKEY_INDEX            = 0x12;
 const uint8_t PARAM_VALUE_URL_INDEX                 = 0x13;
 const uint8_t PARAM_VALUE_MEDIA_URL_INDEX           = 0x14;
+const uint8_t PARAM_VALUE_RECENT_INDEX              = 0x15;
 
 const std::vector<std::string> PARAM_VALUES{
   "attachments",
@@ -95,13 +98,15 @@ const std::vector<std::string> PARAM_VALUES{
   "favorite_count",
   "retweet_count",
   "followers_count",
-  "friends_count"
+  "friends_count",
+  "recent"
 };
 // namespace  {
 static const std::string BASE_URL{"https://api.twitter.com"};
 static const uint8_t     TWEETS_INDEX    = 0x00;
 static const uint8_t     USER_INDEX      = 0x01;
 static const uint8_t     TWEETS_V1_INDEX = 0x02;
+static const uint8_t     USER_V1_INDEX   = 0x03;
 static const std::vector<std::string> PATH{
   "/2/tweets",
   "/2/users"
@@ -110,7 +115,8 @@ static const std::vector<std::string> PATH{
 static const std::vector<std::string> PATH_V1{
   "/1.1/statuses/update.json",
   "/1.1/statuses/user_timeline.json",
-  "/1.1/search/tweets.json"
+  "/1.1/search/tweets.json",
+  "/1.1/users/lookup.json"
 };
 
 } // namespace constants

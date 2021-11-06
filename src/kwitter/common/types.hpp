@@ -441,10 +441,11 @@ bool has_mentions() const
 
 std::string mentions_to_string(bool use_ampersand = false) const
 {
-  const char delimiter = (use_ampersand) ? '@' : ' ';
+  static const char  space     = ' ';
+         const char delimiter  = (use_ampersand) ? '@' : ' ';
   std::string mention_s{};
   if (use_ampersand)
-    for (const auto& mention : mentions) mention_s += delimiter + mention;
+    for (const auto& mention : mentions) mention_s += delimiter + mention + space;
   else
     for (const auto& mention : mentions) mention_s += mention   + delimiter;
 
