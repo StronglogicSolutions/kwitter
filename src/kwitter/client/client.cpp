@@ -197,6 +197,7 @@ std::vector<Tweet> Client::FetchUserTweetsV1(UserID username, uint8_t max)
     },
     cpr::Parameters{
       {PARAM_NAMES.at(PARAM_NAME_SCREEN_NAME_INDEX), username},
+      {"tweet_mode", "extended"},
       {"count",                                      std::to_string(max)}
     }
   )};
@@ -430,7 +431,8 @@ std::vector<Tweet>  Client::FetchTweets(const std::string& subject, uint8_t max,
       },
       cpr::Parameters{
         {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()},
-        {PARAM_NAMES.at(PARAM_NAME_QUERY_INDEX), query}//,
+        {PARAM_NAMES.at(PARAM_NAME_QUERY_INDEX), query},
+        {"tweet_mode", "extended"}
         // {PARAM_NAMES.at(PARAM_NAME_COUNT_INDEX), std::to_string(max)}
       },
       cpr::VerifySsl{false}

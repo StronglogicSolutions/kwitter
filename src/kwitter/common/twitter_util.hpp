@@ -104,9 +104,11 @@ static std::vector<Tweet> ParseV1TweetsFromJSON(const nlohmann::json& data)
   if (!data.is_null() && data.is_array())
   for (const auto& item : data)
   {
+    auto s = item.dump();
+    log(s);
     Tweet tweet{};
     tweet.id              = kjson::GetJSONStringValue   (item,         "id_str");
-    tweet.text            = kjson::GetJSONStringValue   (item,         "text");
+    tweet.text            = kjson::GetJSONStringValue   (item,         "full_text");
     tweet.author_id       = kjson::GetJSONStringValue   (item["user"], "id_str");
     tweet.username        = kjson::GetJSONStringValue   (item["user"], "screen_name");
     tweet.followers_count = kjson::GetJSONValue<int32_t>(item["user"], "followers_count");
@@ -158,7 +160,7 @@ static Tweet ParseV1StatusFromJSON(const nlohmann::json& data)
   const auto BuildCaption = [](const std::string& username, const std::string& id, const nlohmann::json& data) -> std::string
   {
     static const char* BASE_URL{"https://twitter.com/"};
-    return kjson::GetJSONStringValue(data, "text") + '\n' +
+    return kjson::GetJSONStringValue(data, "full_text") + '\n' +
            BASE_URL + username + "/status/" + id;
   };
   Tweet tweet{};
