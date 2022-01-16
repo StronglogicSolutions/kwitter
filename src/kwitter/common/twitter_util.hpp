@@ -104,8 +104,6 @@ static std::vector<Tweet> ParseV1TweetsFromJSON(const nlohmann::json& data)
   if (!data.is_null() && data.is_array())
   for (const auto& item : data)
   {
-    auto s = item.dump();
-    log(s);
     Tweet tweet{};
     tweet.id              = kjson::GetJSONStringValue   (item,         "id_str");
     tweet.text            = kjson::GetJSONStringValue   (item,         "full_text");
@@ -164,8 +162,6 @@ static Tweet ParseV1StatusFromJSON(const nlohmann::json& data)
            BASE_URL + username + "/status/" + id;
   };
   Tweet tweet{};
-
-  auto s = data.dump();
 
   if (!data.is_null() && data.is_object())
   {
@@ -269,7 +265,6 @@ static std::vector<Tweet> JSONToTweets(nlohmann::json data) {
 
 static std::vector<Tweet> JSONContextToTweets(nlohmann::json data) {
   std::vector<Tweet> tweets{};
-  std::string s = data.dump();
 
   try {
     for (const auto& context : data) {
