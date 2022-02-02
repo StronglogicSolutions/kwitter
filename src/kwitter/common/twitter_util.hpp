@@ -159,8 +159,6 @@ static Tweet ParseV1StatusFromJSON(const nlohmann::json& data)
 {
   Tweet tweet{};
 
-  auto s = data.dump();
-
   if (!data.is_null() && data.is_object())
   {
 
@@ -263,7 +261,6 @@ static std::vector<Tweet> JSONToTweets(nlohmann::json data) {
 
 static std::vector<Tweet> JSONContextToTweets(nlohmann::json data) {
   std::vector<Tweet> tweets{};
-  std::string s = data.dump();
 
   try {
     for (const auto& context : data) {
