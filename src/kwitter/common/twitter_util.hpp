@@ -17,6 +17,13 @@ inline INIReader GetConfigReader() {
   return INIReader{GetConfigPath()};
 }
 
+static std::string BuildCaption(const std::string& username, const std::string& id, const nlohmann::json& data)
+{
+  static const char* BASE_URL{"https://twitter.com/"};
+  return kjson::GetJSONStringValue(data, "full_text") + '\n' +
+          BASE_URL + username + "/status/" + id;
+};
+
 inline Media ParseMediaFromJSON(nlohmann::json data) {
   using namespace kjson;
 
@@ -106,9 +113,9 @@ static std::vector<Tweet> ParseV1TweetsFromJSON(const nlohmann::json& data)
   {
     Tweet tweet{};
     tweet.id              = kjson::GetJSONStringValue   (item,         "id_str");
-    tweet.text            = kjson::GetJSONStringValue   (item,         "text");
     tweet.author_id       = kjson::GetJSONStringValue   (item["user"], "id_str");
     tweet.username        = kjson::GetJSONStringValue   (item["user"], "screen_name");
+    tweet.text            = BuildCaption(tweet.username, tweet.id, data);
     tweet.followers_count = kjson::GetJSONValue<int32_t>(item["user"], "followers_count");
     tweet.friends_count   = kjson::GetJSONValue<int32_t>(item["user"], "friends_count");
     tweet.profile_img_url = kjson::GetJSONStringValue   (item["user"], "profile_image_url_https");
@@ -121,22 +128,17 @@ static std::vector<Tweet> ParseV1TweetsFromJSON(const nlohmann::json& data)
       for (const auto& entity : item["entities"].items())
       {
         if (entity.key() == "user_mentions")
-        {
           for (const auto& mention : entity.value())
             tweet.mentions.emplace_back(kjson::GetJSONStringValue(mention, "screen_name"));
-        }
         else
         if (entity.key() == "hashtags")
-        {
           for (const auto& hashtag : entity.value())
             tweet.hashtags.emplace_back(kjson::GetJSONStringValue(hashtag, "text"));
-        }
         else
         if (entity.key() == "media")
-        {
           for (const auto& media : entity.value())
             tweet.urls.emplace_back(kjson::GetJSONStringValue(media, "media_url_https"));
-        }
+
       }
     }
     tweets.emplace_back(tweet);
@@ -155,15 +157,7 @@ static bool HasQuotedTweet(const nlohmann::json& data)
 
 static Tweet ParseV1StatusFromJSON(const nlohmann::json& data)
 {
-  const auto BuildCaption = [](const std::string& username, const std::string& id, const nlohmann::json& data) -> std::string
-  {
-    static const char* BASE_URL{"https://twitter.com/"};
-    return kjson::GetJSONStringValue(data, "text") + '\n' +
-           BASE_URL + username + "/status/" + id;
-  };
   Tweet tweet{};
-
-  auto s = data.dump();
 
   if (!data.is_null() && data.is_object())
   {
@@ -267,7 +261,6 @@ static std::vector<Tweet> JSONToTweets(nlohmann::json data) {
 
 static std::vector<Tweet> JSONContextToTweets(nlohmann::json data) {
   std::vector<Tweet> tweets{};
-  std::string s = data.dump();
 
   try {
     for (const auto& context : data) {
