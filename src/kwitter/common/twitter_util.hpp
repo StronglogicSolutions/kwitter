@@ -115,7 +115,7 @@ static std::vector<Tweet> ParseV1TweetsFromJSON(const nlohmann::json& data)
     tweet.id              = kjson::GetJSONStringValue   (item,         "id_str");
     tweet.author_id       = kjson::GetJSONStringValue   (item["user"], "id_str");
     tweet.username        = kjson::GetJSONStringValue   (item["user"], "screen_name");
-    tweet.text            = BuildCaption(tweet.username, tweet.id, data);
+    tweet.text            = BuildCaption(tweet.username, tweet.id, item);
     tweet.followers_count = kjson::GetJSONValue<int32_t>(item["user"], "followers_count");
     tweet.friends_count   = kjson::GetJSONValue<int32_t>(item["user"], "friends_count");
     tweet.profile_img_url = kjson::GetJSONStringValue   (item["user"], "profile_image_url_https");
