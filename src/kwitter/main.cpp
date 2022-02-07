@@ -24,19 +24,15 @@ int main(int argc, char** argv)
   {
     const std::string arg = kwitter::SanitizeInput(argv[i]);
 
-    if (arg == "search")
-      if (!config.description.empty())
-        std_out += twitter_bot.FetchTweetsByTopicJSON(config.description,
-                                                      config.prefer_media,
-                                                      config.max_results);
-    if (arg == "usersearch")
-      if (!config.username.empty())
-        std_out += twitter_bot.FetchTweetsByUserJSON(config.username,
-                                                     config.max_results);
+    if (arg == "search" && !(config.description.empty()))
+      std_out += twitter_bot.FetchTweetsByTopicJSON(config.description, config.prefer_media, config.max_results);
+    if (arg == "usersearch" && !(config.username.empty()))
+      std_out += twitter_bot.FetchTweetsByUserJSON(config.username, config.max_results);
+    if (arg == "usertopsearch" && !(config.username.empty()))
+      std_out += twitter_bot.FetchTopTweetByDateJSON(config.username, config.max_results, config.prefer_media);
   }
 
-  if (std_out.empty())
-    throw std::runtime_error{"Application did not yield output"};
+  if (std_out.empty()) throw std::runtime_error{"Application did not yield output"};
 
   kwitter::log(std_out);
 
