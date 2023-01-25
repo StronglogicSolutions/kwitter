@@ -5,9 +5,40 @@
 
 namespace kwitter {
 
-inline std::vector<File> GetDefaultFilesArg()
+static std::vector<File> GetDefaultFilesArg()
 {
   return std::vector<File>{};
+}
+using Tweets = std::vector<Tweet>;
+
+static void SortPopularity(Tweets& tweets)
+{
+  std::sort(tweets.begin(), tweets.end(), [](const Tweet& a, const Tweet& b)
+  {
+    const auto a_num = (a.favourite_count > a.retweet_count) ? a.favourite_count : a.retweet_count;
+    const auto b_num = (b.favourite_count > b.retweet_count) ? b.favourite_count : b.retweet_count;
+    return a_num > b_num;
+  });
+};
+
+static void FilterMedia(Tweets& tweets)
+{
+  tweets.erase(
+    std::remove_if(tweets.begin(), tweets.end(), [](const Tweet& tweet) { return !(tweet.has_media()); }),
+    tweets.end());
+}
+
+static void FilterIfMedia(Tweets& tweets)
+{
+  for (const auto& tweet : tweets)
+    if (tweet.has_media()) return FilterMedia(tweets);
+}
+
+static void FilterTodayOnly(Tweets& tweets)
+{
+  tweets.erase(
+    std::remove_if(tweets.begin(), tweets.end(), [](const Tweet& t)  { return (is_today(to_time_t(t.created_at))); }),
+    tweets.end());
 }
 
 class Bot
@@ -92,35 +123,20 @@ std::string FetchTweetsByUserJSON(const std::string& username, uint8_t max = 10)
   return Tweet::TweetsToJSON(m_client.FetchUserTweetsV1(username, max));
 }
 
+std::string FetchTopTweetByDateJSON(const std::string& username, uint8_t max = 1, bool prefer_media = false)
+{
+  auto tweets = m_client.FetchUserTweetsV1(username);
+  if (prefer_media) FilterIfMedia(tweets);
+  SortPopularity(tweets);
+  return Tweet::TweetsToJSON(Tweets{tweets.begin(), tweets.begin() + max});
+}
+
 std::string FetchTweetsByTopicJSON(const std::string& topic, bool prefer_media = false, uint8_t max = 50)
 {
-  using Tweets = std::vector<Tweet>;
-  const auto SortPopularity = [](Tweets& tweets) -> void
-  {
-    std::sort(tweets.begin(), tweets.end(), [](const Tweet& a, const Tweet& b)
-    {
-      const auto a_num = (a.favourite_count > a.retweet_count) ?
-                            a.favourite_count : a.retweet_count;
-      const auto b_num = (b.favourite_count > b.retweet_count) ?
-                            b.favourite_count : b.retweet_count;
-      return a_num > b_num; }
-    );
-  };
-
-  const auto SortMedia = [](Tweets& tweets) -> void
-  {
-    std::sort(tweets.begin(), tweets.end(), [](const Tweet& a, const Tweet& b)
-    {
-      const bool a_has_media = (a.urls.size());
-      const bool b_has_media = (b.urls.size());
-      return a_has_media > b_has_media;
-    });
-  };
   auto tweets = m_client.FetchTweets(topic, max, prefer_media);
 
   if (prefer_media)
-    std::remove_if(tweets.begin(), tweets.end(), [](const Tweet& tweet)
-      { return !(tweet.has_media()); });
+    FilterMedia(tweets);
   else
     SortPopularity(tweets);
 

@@ -85,9 +85,6 @@ static std::string SanitizeOutput(const std::string& s)
   for (const char& c : s) {
     if (c == '\'')
       o += "\'";
-    // else
-    // if (c == '"')
-    //   o += "\\\"";
     else
     if (c == '(')
       o += "&#x28;";
@@ -210,19 +207,43 @@ static void EraseFile(const std::string& path)
   std::remove(path.c_str());
 }
 
-/**
- * to_unixtime
- *
- * @param
- * @returns
- */                                                                                  // "Sat Oct 09 00:58:39 +0000 2021"
-static const std::string to_unixtime(const std::string& datetime, const char* pattern = "%a %b %d %H:%M:%S +0000 %Y")
+static std::time_t to_time_t(const std::string& datetime, const char* pattern = "%a %b %d %H:%M:%S +0000 %Y")
 {
   std::tm            t{};
   std::istringstream ss{datetime};
 
   ss >> std::get_time(&t, pattern);
-  return std::to_string(mktime(&t));
+  return mktime(&t);
 }
+
+/**
+ * to_unixtime
+ *
+ * @param
+ * @returns
+ */                                                                                  // Sat Oct 09 00:58:39 +0000 2021
+static const std::string to_unixtime(const std::string& datetime, const char* pattern = "%a %b %d %H:%M:%S +0000 %Y")
+{
+  std::time_t tm = to_time_t(datetime, pattern);
+  auto        time = *localtime(&tm);
+  return std::to_string(mktime(&time));
+}
+
+static const std::time_t today_start_time()
+{
+  std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+  struct tm   tn  = *localtime(&now);
+  tn.tm_hour = 0;
+  tn.tm_min  = 0;
+  tn.tm_sec  = 0;
+  return mktime(&tn);
+}
+
+
+static bool is_today(const std::time_t& t)
+{
+ return (std::difftime(today_start_time(), t) > 0);
+}
+
 
 } // ns kwitter

@@ -13,7 +13,7 @@ std::string              description;
 bool                     execute_bot;
 std::string              username;
 bool                     prefer_media{false};
-uint32_t                 max_results{0};
+uint32_t                 max_results{5};
 };
 
 static ExecuteConfig ParseRuntimeArguments(int argc, char** argv)
@@ -23,27 +23,32 @@ static ExecuteConfig ParseRuntimeArguments(int argc, char** argv)
   for (int i = 1; i < argc; i++)
   {
     const std::string argument = SanitizeInput(argv[i]);
-    if (argument.find("--header") == 0) {
+    if (argument.find("--header") == 0)
+    {
       config.message = argument.substr(9);
       continue;
     }
     else
-    if (argument.find("--description") == 0) {
+    if (argument.find("--description") == 0)
+    {
       config.description = argument.substr(14);
       continue;
     }
     else
-    if (argument.find("--filename") == 0) {
+    if (argument.find("--filename") == 0)
+    {
       config.file_paths.emplace_back(argument.substr(11));
       continue;
     }
     else
-    if (argument.find("--user") == 0) {
+    if (argument.find("--user") == 0)
+    {
       config.username = argument.substr(7);
       continue;
     }
     else
-    if (argument.find("--execute_bot") == 0) {
+    if (argument.find("--execute_bot") == 0)
+    {
       config.execute_bot = (argument.substr(14).compare("true") == 0);
       continue;
     }
@@ -67,7 +72,8 @@ uint32_t rx_msg{};
 uint32_t tx_err{};
 uint32_t rx_err{};
 
-std::string to_string() {
+std::string to_string()
+{
   return "\nTX msg: " + std::to_string(tx_msg) +
          "\nRX msg: " + std::to_string(rx_msg) +
          "\nTX err: " + std::to_string(tx_err) +
