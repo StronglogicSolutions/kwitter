@@ -5,7 +5,7 @@
 
 namespace kwitter {
 
-inline std::vector<File> GetDefaultFilesArg()
+static std::vector<File> GetDefaultFilesArg()
 {
   return std::vector<File>{};
 }

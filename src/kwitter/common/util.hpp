@@ -85,9 +85,6 @@ static std::string SanitizeOutput(const std::string& s)
   for (const char& c : s) {
     if (c == '\'')
       o += "\'";
-    // else
-    // if (c == '"')
-    //   o += "\\\"";
     else
     if (c == '(')
       o += "&#x28;";
@@ -224,7 +221,7 @@ static std::time_t to_time_t(const std::string& datetime, const char* pattern = 
  *
  * @param
  * @returns
- */                                                                                  // "Sat Oct 09 00:58:39 +0000 2021"
+ */                                                                                  // Sat Oct 09 00:58:39 +0000 2021
 static const std::string to_unixtime(const std::string& datetime, const char* pattern = "%a %b %d %H:%M:%S +0000 %Y")
 {
   std::time_t tm = to_time_t(datetime, pattern);
@@ -232,11 +229,8 @@ static const std::string to_unixtime(const std::string& datetime, const char* pa
   return std::to_string(mktime(&time));
 }
 
-
-
 static const std::time_t today_start_time()
 {
-  // std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch())
   std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   struct tm   tn  = *localtime(&now);
   tn.tm_hour = 0;
@@ -248,10 +242,7 @@ static const std::time_t today_start_time()
 
 static bool is_today(const std::time_t& t)
 {
- const std::time_t today  = today_start_time();
- double            t_diff = std::difftime(today, t);
-
- return (t_diff > 0);
+ return (std::difftime(today_start_time(), t) > 0);
 }
 
 

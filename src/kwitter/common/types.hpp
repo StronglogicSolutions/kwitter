@@ -289,6 +289,13 @@ struct Tweet : public PostDataInterface
 {
 using Attachments = std::vector<Attachment>;
 Tweet() {}
+static Tweet create(std::string_view text)
+{
+  Tweet tweet{};
+  tweet.text = text;
+  return tweet;
+}
+
 std::string	id;
 std::string text;
 std::vector<std::string> mentions;
