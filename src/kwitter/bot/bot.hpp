@@ -130,9 +130,9 @@ std::vector<Tweet> FetchUserTweetsV1(const std::string& username, uint8_t max = 
   return m_client.FetchUserTweetsV1(username);
 }
 
-std::string FetchTweetsByUserJSON(const std::string& username, uint8_t max = 10)
+std::string FetchTweetsByUserJSON(const std::string& username, uint8_t max = 10, bool get_threads = false)
 {
-  return Tweet::TweetsToJSON(m_client.FetchUserTweets(username, max));
+  return Tweet::TweetsToJSON(m_client.FetchUserTweets(username, max, get_threads));
 }
 
 std::string FetchTopTweetByDateJSON(const std::string& username, uint8_t max = 1, bool prefer_media = false)

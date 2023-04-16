@@ -14,6 +14,7 @@ bool                     execute_bot;
 std::string              username;
 bool                     prefer_media{false};
 uint32_t                 max_results{5};
+bool                     get_threads{false};
 };
 
 static ExecuteConfig ParseRuntimeArguments(int argc, char** argv)
@@ -61,6 +62,10 @@ static ExecuteConfig ParseRuntimeArguments(int argc, char** argv)
     else
     if (argument.find("--max") == 0)
       config.max_results = std::stoi(argument.substr(6));
+    else
+    if (argument.find("--get_threads") == 0)
+      config.get_threads = (argument.substr(14) == "true");
+
   }
 
   return config;
