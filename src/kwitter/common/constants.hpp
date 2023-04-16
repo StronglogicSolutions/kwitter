@@ -72,6 +72,7 @@ const uint8_t PARAM_VALUE_MEDIAKEY_INDEX            = 0x12;
 const uint8_t PARAM_VALUE_URL_INDEX                 = 0x13;
 const uint8_t PARAM_VALUE_MEDIA_URL_INDEX           = 0x14;
 const uint8_t PARAM_VALUE_RECENT_INDEX              = 0x15;
+const uint8_t PARAM_VALUE_CONVERSATION_ID_INDEX     = 0x16;
 
 const std::vector<std::string> PARAM_VALUES{
   "attachments",
@@ -99,7 +100,8 @@ const std::vector<std::string> PARAM_VALUES{
   "retweet_count",
   "followers_count",
   "friends_count",
-  "recent"
+  "recent",
+  "conversation_id"
 };
 // namespace  {
 static const std::string BASE_URL{"https://api.twitter.com"};

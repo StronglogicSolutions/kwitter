@@ -95,6 +95,7 @@ inline Auth ParseAuthFromJSON(nlohmann::json json_file) {
     auth.api_key        = GetJSONStringValue(json_file, "apiKey");
     auth.api_key_secret = GetJSONStringValue(json_file, "apiKeySecret");
     auth.token          = GetJSONStringValue(json_file, "bearer");
+    auth.user_id        = GetJSONStringValue(json_file, "id");
   }
 
   return auth;
@@ -189,6 +190,13 @@ bool SetUser(const std::string& username)
   }
 
   return false;
+}
+
+std::string GetIDforUser(const std::string& username)
+{
+  if (m_auth.is_valid())
+    return m_auth.user_id;
+  return "";
 }
 
 std::string GetUsername() {

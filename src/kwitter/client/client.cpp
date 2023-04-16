@@ -14,6 +14,7 @@ const std::string GetDefaultFields()
   return
   PARAM_VALUES.at(PARAM_VALUE_ATTACHMENTS_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_AUTHOR_ID_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_CONVERSATION_ID_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_CREATED_AT_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_ENTITIES_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_GEO_INDEX) + ',' +
@@ -152,11 +153,12 @@ bool Client::HasAuth() {
  * @param id
  * @return std::vector<Tweet>
  */
-std::vector<Tweet> Client::FetchUserTweets(UserID id, uint8_t max)
+std::vector<Tweet> Client::FetchUserTweets(UserID name, uint8_t max)
 {
   using json = nlohmann::json;
   using namespace constants;
 
+  const auto        id  = m_authenticator.GetIDforUser(name);
   const std::string URL = BASE_URL + PATH.at(USER_INDEX) + '/' + id + "/tweets";
 
   RequestResponse response{cpr::Get(
