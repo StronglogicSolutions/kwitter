@@ -9,7 +9,6 @@ static std::vector<File> GetDefaultFilesArg()
 {
   return std::vector<File>{};
 }
-using Tweets = std::vector<Tweet>;
 
 static void SortPopularity(Tweets& tweets)
 {
@@ -108,9 +107,22 @@ Tweet FetchTweet(TwitterStatusClient::TweetID id)
   return m_client.FetchTweet(id);
 }
 
-std::vector<Tweet> FetchUserTweets(const std::string& user_id, uint8_t max = 10)
+std::vector<Tweet> FetchUserTweets(const std::string& user_id, uint8_t max = 10, bool get_threads = false)
 {
-  return m_client.FetchUserTweets(user_id);
+  auto tweets = m_client.FetchUserTweets(user_id);
+  if (get_threads)
+  {
+    Tweets thread_tweets;
+    for (const auto& tweet : tweets)
+    {
+      if (!tweet.conversation_id.empty() && (tweet.author_id == tweet.in_reply_to_user_id))
+      {
+        thread_tweets = m_client.FetchThread(tweet.conversation_id, tweet.author_id);
+      }
+    }
+    tweets.insert(tweets.end(), std::make_move_iterator(thread_tweets.begin()), std::make_move_iterator(thread_tweets.end()));
+  }
+  return tweets;
 }
 
 std::vector<Tweet> FetchUserTweetsV1(const std::string& username, uint8_t max = 10)
