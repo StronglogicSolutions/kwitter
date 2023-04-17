@@ -187,6 +187,7 @@ struct Auth {
 std::string api_key;
 std::string api_key_secret;
 std::string token;
+std::string user_id;
 
 bool is_valid() {
   return (

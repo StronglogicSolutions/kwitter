@@ -12,7 +12,7 @@ namespace kwitter {
   │░░░░░░░░░░░░░░░░░░░░░░░░░░░ kwitter ░░░░░░░░░░░░░░░░░░░░░░░│
   └───────────────────────────────────────────────────────────┘
 */
-
+using Tweets = std::vector<Tweet>;
 class Client : public SecureClient,
                public TwitterStatusClient,
                public TwitterMediaClient
@@ -30,6 +30,7 @@ virtual std::vector<Tweet>  FetchUserTweets(UserID id, uint8_t max = 10) overrid
         std::vector<Tweet>  FetchUserTweetsV1(UserID id, uint8_t max = 10);
         std::vector<Tweet>  FetchChildTweets(TweetID id);
         std::string         FetchUserID(const std::string& name);
+        Tweets              FetchThread(const std::string& id, const UserID& user_id);
 virtual bool                PostTweet(Tweet tweet) override;
 virtual bool                PostTweet(Tweet tweet, std::vector<File> media) override;
         bool                PostTweet(Tweet tweet, std::vector<std::string> media);

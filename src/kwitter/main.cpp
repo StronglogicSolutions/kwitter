@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     if (arg == "search" && !(config.description.empty()))
       std_out += twitter_bot.FetchTweetsByTopicJSON(config.description, config.prefer_media, config.max_results);
     if (arg == "usersearch" && !(config.username.empty()))
-      std_out += twitter_bot.FetchTweetsByUserJSON(config.username, config.max_results);
+      std_out += twitter_bot.FetchTweetsByUserJSON(config.username, config.max_results, config.get_threads);
     if (arg == "usertopsearch" && !(config.username.empty()))
       std_out += twitter_bot.FetchTopTweetByDateJSON(config.username, config.max_results, config.prefer_media);
   }

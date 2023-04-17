@@ -14,6 +14,7 @@ const std::string GetDefaultFields()
   return
   PARAM_VALUES.at(PARAM_VALUE_ATTACHMENTS_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_AUTHOR_ID_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_CONVERSATION_ID_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_CREATED_AT_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_ENTITIES_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_GEO_INDEX) + ',' +
@@ -152,11 +153,12 @@ bool Client::HasAuth() {
  * @param id
  * @return std::vector<Tweet>
  */
-std::vector<Tweet> Client::FetchUserTweets(UserID id, uint8_t max)
+std::vector<Tweet> Client::FetchUserTweets(UserID name, uint8_t max)
 {
   using json = nlohmann::json;
   using namespace constants;
 
+  const auto        id  = m_authenticator.GetIDforUser(name);
   const std::string URL = BASE_URL + PATH.at(USER_INDEX) + '/' + id + "/tweets";
 
   RequestResponse response{cpr::Get(
@@ -176,8 +178,6 @@ std::vector<Tweet> Client::FetchUserTweets(UserID id, uint8_t max)
 
   if (response.error)
     log(response.GetError());
-
-  log(response.text());
 
   return ParseTweetsFromJSON(response.json());
 }
@@ -208,6 +208,34 @@ std::vector<Tweet> Client::FetchUserTweetsV1(UserID username, uint8_t max)
   return ParseV1TweetsFromJSON(response.json());
 }
 
+Tweets Client::FetchThread(const std::string& id, const UserID& user_id)
+{
+  using json = nlohmann::json;
+  using namespace constants;
+
+  const std::string URL = BASE_URL + PATH.at(TWEETS_INDEX) + '/' + "/all";
+
+  RequestResponse response{cpr::Get(
+    cpr::Url{URL},
+    cpr::Header{
+      {HEADER_NAMES.at(HEADER_ACCEPT_INDEX), HEADER_VALUES.at(ACCEPT_JSON_INDEX)},
+      {HEADER_NAMES.at(HEADER_AUTH_INDEX),   m_authenticator.GetBearerAuth()}
+    },
+    cpr::Parameters{
+      {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()},
+      {PARAM_NAMES.at(PARAM_NAME_USER_FIELDS_INDEX),  GetUserFields()   },
+      {PARAM_NAMES.at(PARAM_NAME_MEDIA_FIELDS_INDEX), GetMediaFields()  },
+      {"expansions", "attachments.media_keys"},
+      {"conversation_id", id},
+      {"from", user_id}
+    }
+  )};
+
+  if (response.error)
+    log(response.GetError());
+
+  return ParseTweetsFromJSON(response.json());
+}
 /**
  * @brief FetchChildStatuses
  *
