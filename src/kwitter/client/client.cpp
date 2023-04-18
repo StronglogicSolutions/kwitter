@@ -22,6 +22,7 @@ const std::string GetDefaultFields()
   PARAM_VALUES.at(PARAM_VALUE_IN_REPLY_TO_USER_ID_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_LANG_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_POSSIBLY_SENSITIVE_INDEX) + ',' +
+  PARAM_VALUES.at(PARAM_VALUE_PUBLIC_METRICS_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_REFERENCED_TWEETS_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_SOURCE_INDEX) + ',' +
   PARAM_VALUES.at(PARAM_VALUE_TEXT_INDEX) + ',' +
@@ -116,43 +117,7 @@ Client::Client(const std::string& username)
 bool Client::HasAuth() {
   return m_authenticator.IsAuthenticated();
 }
-
-/**
- * @brief
- *
- * @param id
- * @return Tweet
- */
-// Tweet Client::FetchTweet(TweetID id) {
-//   using json = nlohmann::json;
-//   using namespace constants;
-
-//   const std::string TWEETS_URL = BASE_URL + PATH.at(TWEETS_INDEX) + "/" + id;
-
-//   cpr::Response r = cpr::Get(
-//     cpr::Url{TWEETS_URL}
-//   );
-
-//   if (r.status_code >= 400) {
-//     // Error handling
-//     std::string error_message{
-//       "Request failed with message: " + r.error.message
-//     };
-//   }
-
-//   if (!r.text.empty()) {
-//     return JSONToTweet(json::parse(r.text, nullptr, constants::JSON_PARSE_NO_THROW));
-//   }
-
-//   return Tweet{};
-// }
-
-/**
- * @brief
- *
- * @param id
- * @return std::vector<Tweet>
- */
+//--------------------------------------------------------------------/
 std::vector<Tweet> Client::FetchUserTweets(UserID name, uint8_t max)
 {
   using json = nlohmann::json;
@@ -179,7 +144,7 @@ std::vector<Tweet> Client::FetchUserTweets(UserID name, uint8_t max)
   if (response.error)
     log(response.GetError());
 
-  return ParseTweetsFromJSON(response.json());
+  return ParseTweetsFromJSON(response.json(), name);
 }
 
 std::vector<Tweet> Client::FetchUserTweetsV1(UserID username, uint8_t max)
