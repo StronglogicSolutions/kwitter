@@ -12,7 +12,6 @@ namespace kwitter {
   │░░░░░░░░░░░░░░░░░░░░░░░░░░░ kwitter ░░░░░░░░░░░░░░░░░░░░░░░│
   └───────────────────────────────────────────────────────────┘
 */
-using Tweets = std::vector<Tweet>;
 class Client : public SecureClient,
                public TwitterStatusClient,
                public TwitterMediaClient

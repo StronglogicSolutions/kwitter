@@ -302,23 +302,11 @@ std::string text;
 std::vector<std::string> mentions;
 std::vector<std::string> hashtags;
 std::vector<std::string> urls;
-// Attachments attachments;
+std::vector<std::string> media_keys;
 
-// "attachments": {
-//     "poll_ids": [
-//         "1199786642468413448"
-//     ]
-// }
-
-// "attachments": {
-//     "media_keys": [
-//         "3_1136048009270239232"
-//     ]
-// }
 std::string author_id;
 std::string username;
 std::string profile_img_url;
-// std::vector<ContextAnnotation> context_annotations;
 std::string conversation_id;
 std::string created_at;
 std::vector<Entity> entities;
@@ -475,6 +463,195 @@ std::string media_to_string() const
 }
 };
 
+// struct Tweet : public PostDataInterface
+// {
+// using Attachments = std::vector<Attachment>;
+// Tweet() {}
+// static Tweet create(std::string_view text)
+// {
+//   Tweet tweet{};
+//   tweet.text = text;
+//   return tweet;
+// }
+
+// std::string	id;
+// std::string text;
+// std::vector<std::string> mentions;
+// std::vector<std::string> hashtags;
+// std::vector<std::string> urls;
+// // Attachments attachments;
+
+// // "attachments": {
+// //     "poll_ids": [
+// //         "1199786642468413448"
+// //     ]
+// // }
+
+// // "attachments": {
+// //     "media_keys": [
+// //         "3_1136048009270239232"
+// //     ]
+// // }
+// std::string author_id;
+// std::string username;
+// std::string profile_img_url;
+// // std::vector<ContextAnnotation> context_annotations;
+// std::string conversation_id;
+// std::string created_at;
+// std::vector<Entity> entities;
+// Coordinates geo;
+// std::string in_reply_to_user_id;
+// std::string in_reply_to_status_id;
+// std::string lang;
+// NonPublicMetrics non_public_metrics;
+// OrganicMetrics organic_metrics;
+// bool possiby_sensitive;
+// PromotedMetrics promoted_metrics;
+// PublicMetrics public_metrics;
+// std::vector<RefTweet> referenced_tweets;
+// std::string reply_settings;
+// std::string source;
+// int32_t followers_count;
+// int32_t friends_count;
+// int32_t favourite_count;
+// int32_t retweet_count;
+// Withheld withheld;
+
+// const std::string likes () const
+// {
+//   return std::to_string(favourite_count);
+// }
+
+// const std::string retweets () const
+// {
+//   return std::to_string(retweet_count);
+// }
+
+// const std::string followers() const
+// {
+//   return std::to_string(followers_count);
+// }
+
+// const std::string friends() const
+// {
+//   return std::to_string(friends_count);
+// }
+
+// static Tweet create_instance_with_message(      Tweet        tweet,
+//                                           const std::string& message)
+// {
+//   tweet.text = message;
+//   return tweet;
+// }
+
+// friend std::ostream &operator<<(std::ostream& o, const Tweet& s) {
+//   std::string mentions; for (const auto& mention : s.mentions) mentions += mention;
+//   std::string hashtags; for (const auto& hashtag : s.hashtags) hashtags += hashtag;
+//   std::string urls;     for (const auto& url : s.urls)         urls     += url;
+//   o << "ID             :" << s.id              << '\n'
+//     << "TEXT           :" << s.text            << '\n'
+//     << "MENTIONS       :" << mentions          << '\n'
+//     << "HASHTAGS       :" << hashtags          << '\n'
+//     << "LIKES          :" << s.likes()         << '\n'
+//     << "RETWEETS       :" << s.retweets()      << '\n'
+//     << "URLS           :" << urls              << '\n'
+//     << "AUTHOR_ID      :" << s.author_id       << '\n'
+//     << "USERNAME       :" << s.username        << '\n'
+//     << "FOLLOWERS      :" << s.followers()     << '\n'
+//     << "FRIENDS        :" << s.friends()       << '\n'
+//     << "PROFILE_IMG_URL:" << s.profile_img_url << '\n';
+//   return o;
+// }
+
+// static const std::string TweetsToJSON(const std::vector<Tweet> tweets)
+// {
+//   nlohmann::json json_array = nlohmann::json::array();
+
+//   for (const Tweet& tweet : tweets)
+//   {
+//     nlohmann::json data{};
+//     data["id"]       = tweet.id;
+//     data["content"]  = tweet.text;
+//     data["user"]     = tweet.username;
+//     data["time"]     = to_unixtime(tweet.created_at);
+//     data["date"]     = tweet.created_at;
+//     data["likes"]    = tweet.likes();
+//     data["retweets"] = tweet.retweets();
+//     if (tweet.has_tags())
+//       data["hashtags"]  = tweet.tags_to_string(true);
+//     if (tweet.has_mentions())
+//       data["mentions"] = tweet.mentions_to_string(true);
+//     if (tweet.has_media())
+//       data["urls"] = tweet.media_to_string();
+//     json_array.emplace_back(data);
+//   }
+
+//   return json_array.dump();
+// }
+
+// virtual std::string postdata() override {
+//   return "";
+// }
+
+// bool is_valid() const
+// {
+//   return (!text.empty());
+// }
+
+// virtual ~Tweet() override {}
+
+// bool has_tags() const
+// {
+//   return !(hashtags.empty());
+// }
+
+// std::string tags_to_string(bool use_hash_sign = false) const
+// {
+//   static const char  space     = ' ';
+//   static const char  hash      = '#';
+//          const char  delimiter = (use_hash_sign) ? hash : space;
+//          std::string hashtag_s{};
+//   if (use_hash_sign)
+//     for (const auto& hashtag : hashtags) hashtag_s += delimiter + hashtag + space;
+//   else
+//     for (const auto& hashtag : hashtags) hashtag_s += hashtag   + delimiter;
+
+//   return hashtag_s;
+// }
+
+// bool has_mentions() const
+// {
+//   return !(mentions.empty());
+// }
+
+// std::string mentions_to_string(bool use_ampersand = false) const
+// {
+//   static const char  space     = ' ';
+//          const char delimiter  = (use_ampersand) ? '@' : ' ';
+//   std::string mention_s{};
+//   if (use_ampersand)
+//     for (const auto& mention : mentions) mention_s += delimiter + mention + space;
+//   else
+//     for (const auto& mention : mentions) mention_s += mention   + delimiter;
+
+//   return mention_s;
+// }
+
+// bool has_media() const
+// {
+//   return !(urls.empty());
+// }
+
+// std::string media_to_string() const
+// {
+//   const char delimiter = '>';
+//   std::string url_s{};
+//   for (const auto& url : urls) url_s += url + delimiter;
+
+//   return url_s;
+// }
+// };
+
 struct Conversation {
 std::string          id;
 bool                 unread;
@@ -487,5 +664,7 @@ friend std::ostream &operator<<(std::ostream& o, const Conversation& c) {
   return o;
 }
 };
+
+using Tweets = std::vector<Tweet>;
 
 } // namespace kwitter

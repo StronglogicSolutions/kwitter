@@ -222,7 +222,9 @@ static std::time_t to_time_t(const std::string& datetime, const char* pattern = 
  * @param
  * @returns
  */                                                                                  // Sat Oct 09 00:58:39 +0000 2021
-static const std::string to_unixtime(const std::string& datetime, const char* pattern = "%a %b %d %H:%M:%S +0000 %Y")
+                                                                                     // 2023-04-18T02:02:00.000Z
+                                                                                    //  %a %b %d %H:%M:%S +0000 %Y
+static const std::string to_unixtime(const std::string& datetime, const char* pattern = "%Y-%m-%dT%H:%M:%S")
 {
   std::time_t tm = to_time_t(datetime, pattern);
   auto        time = *localtime(&tm);
