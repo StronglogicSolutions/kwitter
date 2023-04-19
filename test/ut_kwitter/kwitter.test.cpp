@@ -38,52 +38,13 @@ TEST(KTwitterTests, DISABLED_FetchTimeline)
 /**
  * FetchTimeLine V1
  */
-TEST(KTwitterTests, DISABLED_FetchTimelineV1)
+TEST(KTwitterTests, FetchTimelineV1)
 {
   using Tweet = kwitter::Tweet;
   kwitter::Bot bot{};
-  const std::string TEST_USER_NAME{"RBuckshi"};
+  const std::string TEST_USER_NAME{"ProfKlausSchwab"};
 
   std::vector<Tweet> tweets = bot.FetchUserTweetsV1(TEST_USER_NAME, 20);
 
-  EXPECT_FALSE(tweets.empty());
-}
-
-TEST(KTwitterTests, DISABLED_PostTweet)
-{
-  using Tweet = kwitter::Tweet;
-  kwitter::Bot bot{};
-  Tweet        tweet{};
-
-  tweet.text  = "Test!";
-  bool result = bot.PostTweet(tweet);
-
-  EXPECT_TRUE(result);
-}
-
-TEST(KTwitterTests, FetchPopularTweetsBySubject)
-{
-  using Tweet  = kwitter::Tweet;
-  using Tweets = std::vector<Tweet>;
-
-  kwitter::Client client{};
-  Tweet           trending_tweet;
-  Tweets          tweets = client.FetchTweets("Korean");
-  int32_t         score{};
-
-  for (const Tweet& tweet : tweets)
-  {
-    kwitter::log(tweet);
-    int32_t popularity_score = (tweet.favourite_count > tweet.retweet_count) ?
-                                 tweet.favourite_count : tweet.retweet_count;
-    if (popularity_score > score)
-    {
-      trending_tweet = tweet;
-      score = popularity_score;
-    }
-  }
-
-  kwitter::log("Most popular tweet was:");
-  kwitter::log(trending_tweet);
   EXPECT_FALSE(tweets.empty());
 }

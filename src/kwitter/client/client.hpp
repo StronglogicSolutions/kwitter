@@ -3,7 +3,6 @@
 #include <deque>
 
 #include "kwitter/common/auth/auth.hpp"
-#include "kwitter/common/interface.hpp"
 
 namespace kwitter {
 /**
@@ -12,36 +11,28 @@ namespace kwitter {
   │░░░░░░░░░░░░░░░░░░░░░░░░░░░ kwitter ░░░░░░░░░░░░░░░░░░░░░░░│
   └───────────────────────────────────────────────────────────┘
 */
-class Client : public SecureClient,
-               public TwitterStatusClient,
-               public TwitterMediaClient
+class Client
 {
 public:
 Client(const std::string& username = "");
 
-virtual ~Client() override {}
-
-virtual bool                HasAuth() override;
-virtual Tweet               FetchTweet(TweetID id) override;
-        std::vector<Tweet>  FetchTweets(const std::string& subject, uint8_t max = 50, bool media_only=false);
-        std::vector<Tweet>  FetchTweetsByUser(const std::string& username, uint8_t max = 10);
-virtual std::vector<Tweet>  FetchUserTweets(UserID id, uint8_t max = 10) override;
-        std::vector<Tweet>  FetchUserTweetsV1(UserID id, uint8_t max = 10);
-        std::vector<Tweet>  FetchChildTweets(TweetID id);
-        std::string         FetchUserID(const std::string& name);
-        Tweets              FetchThread(const std::string& id, const UserID& user_id);
-virtual bool                PostTweet(Tweet tweet) override;
-virtual bool                PostTweet(Tweet tweet, std::vector<File> media) override;
-        bool                PostTweet(Tweet tweet, std::vector<std::string> media);
-virtual Media               PostMedia(File file) override;
-virtual Account             GetAccount() override;
-        std::string         GetUsername();
-        bool                SetUser(const std::string& username);
-
-        bool                HasPostedTweets() const;
-        Tweet               GetPostedTweet();
-
-std::vector<Conversation>   FetchConversations();
+bool                      HasAuth();
+Tweet                     FetchTweet(TweetID id) ;
+std::vector<Tweet>        FetchTweets(const std::string& subject, uint8_t max = 50, bool media_only=false);
+std::vector<Tweet>        FetchTweetsByUser(const std::string& username, uint8_t max = 10);
+std::vector<Tweet>        FetchUserTweets(UserID id, uint8_t max = 10);
+std::vector<Tweet>        FetchUserTweetsV1(UserID id, uint8_t max = 10);
+std::vector<Tweet>        FetchChildTweets(TweetID id);
+std::string               FetchUserID(const std::string& name);
+Tweets                    FetchThread(const std::string& id, const UserID& user_id);
+bool                      PostTweet(Tweet tweet);
+Media                     PostMedia(File file);
+Account                   GetAccount();
+std::string               GetUsername();
+bool                      SetUser(const std::string& username);
+bool                      HasPostedTweets() const;
+Tweet                     GetPostedTweet();
+std::vector<Conversation> FetchConversations();
 
 private:
 using json = nlohmann::json;

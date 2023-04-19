@@ -9,42 +9,15 @@ namespace kwitter {
   └───────────────────────────────────────────────────────────┘
 */
 
-inline std::string GetConfigPath() {
-  return get_executable_cwd() + "../" + constants::DEFAULT_CONFIG_PATH;
-}
-
-inline INIReader GetConfigReader() {
-  return INIReader{GetConfigPath()};
-}
+static auto GetConfigReader = [] { return INIReader{get_executable_cwd() + "../" + constants::DEFAULT_CONFIG_PATH}; };
 
 static std::string BuildCaption(const std::string& username, const std::string& id, const nlohmann::json& data)
 {
-  static const char* BASE_URL{"https://twitter.com/"};
-  return kjson::GetJSONStringValue(data, "full_text") + '\n' +
-          BASE_URL + username + "/status/" + id;
+  static const char* SITE_URL{"https://twitter.com/"};
+  return kjson::GetJSONStringValue(data, "text") + '\n' + SITE_URL + username + "/status/" + id;
 };
 
-inline Media ParseMediaFromJSON(nlohmann::json data) {
-  using namespace kjson;
-
-  Media media{};
-
-  return media;
-}
-
-inline std::vector<Media> ParseMediaFromJSONArr(nlohmann::json data) {
-  std::vector<Media> media_v{};
-
-  if (!data.is_null() && data.is_array()) {
-    for (const auto& item : data) {
-      media_v.emplace_back(ParseMediaFromJSON(item));
-    }
-  }
-
-  return media_v;
-}
-
-inline Tweet ParseTweetFromJSON(nlohmann::json data)
+static Tweet ParseTweetFromJSON(nlohmann::json data)
 {
   Tweet       tweet;
 
@@ -311,7 +284,8 @@ static std::vector<Tweet> JSONContextToTweets(nlohmann::json data) {
       );
     }
   }
-  catch (const std::exception& e) {
+  catch (const std::exception& e)
+  {
     std::string error = e.what();
     log(error);
   }
