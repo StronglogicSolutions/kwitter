@@ -71,7 +71,7 @@ bool PostTweet(Tweet tweet = Tweet{}, std::vector<T> files = GetDefaultFilesArg(
   return false;
 }
 //------------------------------------------------------------------
-Tweet FetchTweet(TwitterStatusClient::TweetID id)
+Tweet FetchTweet(TweetID id)
 {
   return m_client.FetchTweet(id);
 }
