@@ -38,7 +38,9 @@ static void FilterTodayOnly(Tweets& tweets)
     std::remove_if(tweets.begin(), tweets.end(), [](const Tweet& t)  { return (is_today(to_time_t(t.created_at))); }),
     tweets.end());
 }
+
 //------------------------------------------------------------------
+//--------------------------BOT-------------------------------------
 //------------------------------------------------------------------
 class Bot
 {
@@ -69,21 +71,25 @@ bool PostTweet(Tweet tweet = Tweet{}, std::vector<T> files = GetDefaultFilesArg(
   return false;
 }
 //------------------------------------------------------------------
-Tweet FetchTweet(TwitterStatusClient::TweetID id)
+Tweet FetchTweet(TweetID id)
 {
   return m_client.FetchTweet(id);
 }
 //------------------------------------------------------------------
-std::vector<Tweet> FetchUserTweets(const std::string& user_id, uint8_t max = 10, bool get_threads = false)
+std::vector<Tweet> FetchUserTweets(const std::string& user, uint8_t max = 10, bool get_threads = false)
 {
-  auto tweets = m_client.FetchUserTweets(user_id);
+  auto is_thread = [](const auto& t) { return !t.conversation_id.empty() && (t.author_id == t.in_reply_to_user_id); };
+  auto tweets = m_client.FetchUserTweets(user);
   if (get_threads)
   {
-    Tweets thread_tweets;
+    Tweets threads;
     for (const auto& tweet : tweets)
-      if (!tweet.conversation_id.empty() && (tweet.author_id == tweet.in_reply_to_user_id))
-        thread_tweets = m_client.FetchThread(tweet.conversation_id, tweet.author_id);
-    tweets.insert(tweets.end(), std::make_move_iterator(thread_tweets.begin()), std::make_move_iterator(thread_tweets.end()));
+      if (is_thread(tweet))
+      {
+        const auto thread = m_client.FetchThread(tweet.conversation_id, user);
+        threads.insert(threads.end(), std::make_move_iterator(thread.begin()), std::make_move_iterator(thread.end()));
+      }
+    tweets.insert(tweets.end(), std::make_move_iterator(threads.begin()), std::make_move_iterator(threads.end()));
   }
   return tweets;
 }
