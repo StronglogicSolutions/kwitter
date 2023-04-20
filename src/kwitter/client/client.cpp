@@ -115,6 +115,9 @@ std::vector<Tweet> Client::FetchUserTweets(UserID name, uint8_t max)
   const auto        id  = m_authenticator.GetIDforUser(name);
   const std::string URL = BASE_URL + PATH.at(USER_INDEX) + '/' + id + "/tweets";
 
+  if (id.empty())
+    return {};
+
   RequestResponse response{cpr::Get(
     cpr::Url{URL},
     cpr::Header{
