@@ -231,29 +231,29 @@ bool Client::PostTweet(Tweet tweet)
   return true;
 }
 //---------------------------------------------------
-Tweet Client::FetchTweet(TweetID id)
-{
-  using namespace constants;
+// Tweet Client::FetchTweet(TweetID id)
+// {
+//   using namespace constants;
 
-  const std::string URL = BASE_URL + PATH.at(TWEETS_INDEX) + '/' + id;
+//   const std::string URL = BASE_URL + PATH.at(TWEETS_INDEX) + '/' + id;
 
-  RequestResponse response{
-    cpr::Get(
-      cpr::Url{URL},
-      cpr::Header{
-        {HEADER_NAMES.at(HEADER_ACCEPT_INDEX), HEADER_VALUES.at(ACCEPT_JSON_INDEX)},
-        {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
-      },
-      cpr::Parameters{
-        {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()}
-      })};
+//   RequestResponse response{
+//     cpr::Get(
+//       cpr::Url{URL},
+//       cpr::Header{
+//         {HEADER_NAMES.at(HEADER_ACCEPT_INDEX), HEADER_VALUES.at(ACCEPT_JSON_INDEX)},
+//         {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
+//       },
+//       cpr::Parameters{
+//         {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()}
+//       })};
 
-  if (response.error)
-    log(response.GetError());
-  else
-    return ParseTweetFromJSON(response.json());
-  return Tweet{};
-}
+//   if (response.error)
+//     log(response.GetError());
+//   else
+//     return ParseTweetFromJSON(response.json());
+//   return Tweet{};
+// }
 //---------------------------------------------------
 Account Client::GetAccount() {
   return m_authenticator.GetAccount();

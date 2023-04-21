@@ -17,6 +17,23 @@ static std::string BuildCaption(const std::string& username, const std::string& 
   return kjson::GetJSONStringValue(data, "text") + '\n' + SITE_URL + username + "/status/" + id;
 };
 
+static Tweet ParseTweetFromJSON(nlohmann::json data)
+{
+  Tweet       tweet;
+
+  if (!data.is_null() && data.is_object() && data.contains("data"))
+  {
+    const nlohmann::json payload = data["data"];
+    tweet.id              = kjson::GetJSONStringValue(payload, "id");
+    tweet.text            = kjson::GetJSONStringValue(payload, "text");
+    tweet.author_id       = kjson::GetJSONStringValue(payload, "author_id");
+    tweet.conversation_id = kjson::GetJSONStringValue(payload, "conversation_id");
+    tweet.created_at      = kjson::GetJSONStringValue(payload, "created_at");
+  }
+
+  return tweet;
+}
+
 static std::vector<Tweet> ParseTweetsFromJSON(const nlohmann::json& data, const std::string& username = "")
 {
   std::map<std::string, std::string> media_map;
