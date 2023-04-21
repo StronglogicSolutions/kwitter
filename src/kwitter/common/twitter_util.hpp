@@ -11,11 +11,11 @@ namespace kwitter {
 
 static auto GetConfigReader = [] { return INIReader{get_executable_cwd() + "../" + constants::DEFAULT_CONFIG_PATH}; };
 
-static std::string BuildCaption(const std::string& username, const std::string& id, const nlohmann::json& data)
-{
-  static const char* SITE_URL{"https://twitter.com/"};
-  return kjson::GetJSONStringValue(data, "text") + '\n' + SITE_URL + username + "/status/" + id;
-};
+// static std::string BuildCaption(const std::string& username, const std::string& id, const nlohmann::json& data)
+// {
+//   static const char* SITE_URL{"https://twitter.com/"};
+//   return kjson::GetJSONStringValue(data, "text") + '\n' + SITE_URL + username + "/status/" + id;
+// };
 
 static Tweet ParseTweetFromJSON(nlohmann::json data)
 {
@@ -51,7 +51,7 @@ static std::vector<Tweet> ParseTweetsFromJSON(const nlohmann::json& data, const 
       tweet.id                  = id;
       tweet.author_id           = kjson::GetJSONStringValue   (item,         "author_id");
       tweet.username            = username;
-      tweet.text                = BuildCaption(tweet.username, tweet.id, item);
+      tweet.text                = kjson::GetJSONStringValue   (item,         "text");
       tweet.created_at          = to_unixtime(kjson::GetJSONStringValue   (item,         "created_at"));
       tweet.in_reply_to_user_id = kjson::GetJSONStringValue   (item,         "in_reply_to_user_id");
       tweet.conversation_id     = kjson::GetJSONStringValue   (item,         "conversation_id");
@@ -125,7 +125,7 @@ static std::vector<Tweet> ParseV1TweetsFromJSON(const nlohmann::json& data)
     tweet.id                  = kjson::GetJSONStringValue   (item,         "id_str");
     tweet.author_id           = kjson::GetJSONStringValue   (item["user"], "id_str");
     tweet.username            = kjson::GetJSONStringValue   (item["user"], "screen_name");
-    tweet.text                = BuildCaption(tweet.username, tweet.id, item);
+    tweet.text                = kjson::GetJSONStringValue   (item,         "text");
     tweet.followers_count     = kjson::GetJSONValue<int32_t>(item["user"], "followers_count");
     tweet.friends_count       = kjson::GetJSONValue<int32_t>(item["user"], "friends_count");
     tweet.conversation_id     = kjson::GetJSONStringValue   (item,         "conversation_id");
@@ -177,7 +177,7 @@ static Tweet ParseV1StatusFromJSON(const nlohmann::json& data)
     tweet.id              = kjson::GetJSONStringValue   (data,         "id_str");
     tweet.author_id       = kjson::GetJSONStringValue   (data["user"], "id_str");
     tweet.username        = kjson::GetJSONStringValue   (data["user"], "screen_name");
-    tweet.text            = BuildCaption(tweet.username, tweet.id, data);
+    tweet.text            = kjson::GetJSONStringValue   (data,         "text");
     tweet.followers_count = kjson::GetJSONValue<int32_t>(data["user"], "followers_count");
     tweet.friends_count   = kjson::GetJSONValue<int32_t>(data["user"], "friends_count");
     tweet.profile_img_url = kjson::GetJSONStringValue   (data["user"], "profile_image_url_https");
