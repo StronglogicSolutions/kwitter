@@ -208,6 +208,29 @@ static Tweet ParseV1StatusFromJSON(const nlohmann::json& data)
         }
       }
     }
+    if (data.contains("extended_entities"))
+    {
+      for (const auto& entity : data["entities"].items())
+      {
+        if (entity.key() == "user_mentions")
+        {
+          for (const auto& mention : entity.value())
+            tweet.mentions.emplace_back(kjson::GetJSONStringValue(mention, "screen_name"));
+        }
+        else
+        if (entity.key() == "hashtags")
+        {
+          for (const auto& hashtag : entity.value())
+            tweet.hashtags.emplace_back(kjson::GetJSONStringValue(hashtag, "text"));
+        }
+        else
+        if (entity.key() == "media")
+        {
+          for (const auto& media : entity.value())
+            tweet.urls.emplace_back(kjson::GetJSONStringValue(media, "media_url_https"));
+        }
+      }
+    }
   }
   return tweet;
 }
@@ -228,7 +251,7 @@ static std::vector<Tweet> ParseV1StatusesFromJSON(const nlohmann::json& json_dat
 
         if (!tweet.has_media() && HasQuotedTweet(item))
         {
-          const Tweet quoted_tweet = ParseV1StatusFromJSON(item["retweeted_status"]["quoted_status"]);
+          const Tweet quoted_tweet = ParseV1StatusFromJSON(item["retweeted_status"]);
           tweet.urls = quoted_tweet.urls;
         }
         tweets.emplace_back(tweet);
