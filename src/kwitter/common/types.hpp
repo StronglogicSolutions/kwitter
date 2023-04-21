@@ -384,7 +384,7 @@ static const std::string TweetsToJSON(const std::vector<Tweet> tweets)
     data["id"]       = tweet.id;
     data["content"]  = tweet.text;
     data["user"]     = tweet.username;
-    data["time"]     = to_unixtime(tweet.created_at);
+    data["time"]     = tweet.created_at;
     data["date"]     = tweet.created_at;
     data["likes"]    = tweet.likes();
     data["retweets"] = tweet.retweets();

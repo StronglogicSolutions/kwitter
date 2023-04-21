@@ -52,7 +52,7 @@ static std::vector<Tweet> ParseTweetsFromJSON(const nlohmann::json& data, const 
       tweet.author_id           = kjson::GetJSONStringValue   (item,         "author_id");
       tweet.username            = username;
       tweet.text                = BuildCaption(tweet.username, tweet.id, item);
-      tweet.created_at          = kjson::GetJSONStringValue   (item,         "created_at");
+      tweet.created_at          = to_unixtime(kjson::GetJSONStringValue   (item,         "created_at"));
       tweet.in_reply_to_user_id = kjson::GetJSONStringValue   (item,         "in_reply_to_user_id");
       tweet.conversation_id     = kjson::GetJSONStringValue   (item,         "conversation_id");
 
@@ -130,7 +130,7 @@ static std::vector<Tweet> ParseV1TweetsFromJSON(const nlohmann::json& data)
     tweet.friends_count       = kjson::GetJSONValue<int32_t>(item["user"], "friends_count");
     tweet.conversation_id     = kjson::GetJSONStringValue   (item,         "conversation_id");
     tweet.profile_img_url     = kjson::GetJSONStringValue   (item["user"], "profile_image_url_https");
-    tweet.created_at          = kjson::GetJSONStringValue   (item,         "created_at");
+    tweet.created_at          = to_unixtimev1(kjson::GetJSONStringValue   (item,         "created_at"));
     tweet.retweet_count       = kjson::GetJSONValue<int32_t>(item,         "retweet_count");
     tweet.favourite_count     = kjson::GetJSONValue<int32_t>(item,         "favorite_count");
     tweet.in_reply_to_user_id = kjson::GetJSONStringValue   (item,         "in_reply_to_user_id");
@@ -181,11 +181,34 @@ static Tweet ParseV1StatusFromJSON(const nlohmann::json& data)
     tweet.followers_count = kjson::GetJSONValue<int32_t>(data["user"], "followers_count");
     tweet.friends_count   = kjson::GetJSONValue<int32_t>(data["user"], "friends_count");
     tweet.profile_img_url = kjson::GetJSONStringValue   (data["user"], "profile_image_url_https");
-    tweet.created_at      = kjson::GetJSONStringValue   (data,         "created_at");
+    tweet.created_at      = to_unixtimev1(kjson::GetJSONStringValue   (data,         "created_at"));
     tweet.retweet_count   = kjson::GetJSONValue<int32_t>(data,         "retweet_count");
     tweet.favourite_count = kjson::GetJSONValue<int32_t>(data,         "favourites_count");
 
     if (data.contains("entities"))
+    {
+      for (const auto& entity : data["entities"].items())
+      {
+        if (entity.key() == "user_mentions")
+        {
+          for (const auto& mention : entity.value())
+            tweet.mentions.emplace_back(kjson::GetJSONStringValue(mention, "screen_name"));
+        }
+        else
+        if (entity.key() == "hashtags")
+        {
+          for (const auto& hashtag : entity.value())
+            tweet.hashtags.emplace_back(kjson::GetJSONStringValue(hashtag, "text"));
+        }
+        else
+        if (entity.key() == "media")
+        {
+          for (const auto& media : entity.value())
+            tweet.urls.emplace_back(kjson::GetJSONStringValue(media, "media_url_https"));
+        }
+      }
+    }
+    if (data.contains("extended_entities"))
     {
       for (const auto& entity : data["entities"].items())
       {
@@ -228,7 +251,7 @@ static std::vector<Tweet> ParseV1StatusesFromJSON(const nlohmann::json& json_dat
 
         if (!tweet.has_media() && HasQuotedTweet(item))
         {
-          const Tweet quoted_tweet = ParseV1StatusFromJSON(item["retweeted_status"]["quoted_status"]);
+          const Tweet quoted_tweet = ParseV1StatusFromJSON(item["retweeted_status"]);
           tweet.urls = quoted_tweet.urls;
         }
         tweets.emplace_back(tweet);

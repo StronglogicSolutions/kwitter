@@ -12,7 +12,7 @@ public:
   Client(const std::string& username = "");
 
   bool                      HasAuth           ();
-  Tweet                     FetchTweet        (TweetID id) ;
+  // Tweet                     FetchTweet        (TweetID id) ;
   std::vector<Tweet>        FetchTweets       (const std::string& subject, uint8_t max = 50, bool media_only=false);
   std::vector<Tweet>        FetchTweetsByUser (const std::string& username, uint8_t max = 10);
   std::vector<Tweet>        FetchUserTweets   (UserID id, uint8_t max = 10);
