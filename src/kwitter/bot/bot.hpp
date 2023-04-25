@@ -70,11 +70,6 @@ bool PostTweet(Tweet tweet = Tweet{}, std::vector<T> files = GetDefaultFilesArg(
   }
   return false;
 }
-// //------------------------------------------------------------------
-// Tweet FetchTweet(TweetID id)
-// {
-//   return m_client.FetchTweet(id);
-// }
 //------------------------------------------------------------------
 std::vector<Tweet> FetchUserTweets(const std::string& user, uint8_t max = 10, bool get_threads = false)
 {
