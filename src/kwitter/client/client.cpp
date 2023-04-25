@@ -183,7 +183,8 @@ Tweets Client::FetchThread(const std::string& id, const UserID& username)
       {PARAM_NAMES.at(PARAM_NAME_USER_FIELDS_INDEX),  GetUserFields()   },
       {PARAM_NAMES.at(PARAM_NAME_MEDIA_FIELDS_INDEX), GetMediaFields()  },
       {PARAM_NAMES.at(PARAM_NAME_QUERY_V2_INDEX),     query             },
-      {"expansions", "attachments.media_keys,referenced_tweets.id"      },
+      {"expansions",  "attachments.media_keys,referenced_tweets.id"     },
+      {"max_results", "25"                                              }
     })};
 
   if (response.error)
@@ -230,30 +231,6 @@ bool Client::PostTweet(Tweet tweet)
 
   return true;
 }
-//---------------------------------------------------
-// Tweet Client::FetchTweet(TweetID id)
-// {
-//   using namespace constants;
-
-//   const std::string URL = BASE_URL + PATH.at(TWEETS_INDEX) + '/' + id;
-
-//   RequestResponse response{
-//     cpr::Get(
-//       cpr::Url{URL},
-//       cpr::Header{
-//         {HEADER_NAMES.at(HEADER_ACCEPT_INDEX), HEADER_VALUES.at(ACCEPT_JSON_INDEX)},
-//         {HEADER_NAMES.at(HEADER_AUTH_INDEX), m_authenticator.GetBearerAuth()}
-//       },
-//       cpr::Parameters{
-//         {PARAM_NAMES.at(PARAM_NAME_TWEET_FIELDS_INDEX), GetDefaultFields()}
-//       })};
-
-//   if (response.error)
-//     log(response.GetError());
-//   else
-//     return ParseTweetFromJSON(response.json());
-//   return Tweet{};
-// }
 //---------------------------------------------------
 Account Client::GetAccount() {
   return m_authenticator.GetAccount();
