@@ -95,11 +95,15 @@ static std::vector<Tweet> ParseTweetsFromJSON(const nlohmann::json& data, const 
     }
     if (data.contains("includes"))
     {
-
       if (data["includes"].contains("media"))
       {
         for (const auto& media : data["includes"]["media"])
-          tweets[media_map.at(media["media_key"])].urls.push_back(media["url"].get<std::string>());
+        {
+          if (media.contains("preview_image_url"))
+            tweets[media_map.at(media["media_key"])].urls.push_back(media["preview_image_url"].get<std::string>());
+          else if (media.contains("url"))
+            tweets[media_map.at(media["media_key"])].urls.push_back(media["url"]              .get<std::string>());
+        }
       }
     }
   }
